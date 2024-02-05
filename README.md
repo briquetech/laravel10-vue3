@@ -132,7 +132,7 @@ if the 'component' directory doesnt exist, create one. For example, to create a 
 	const app = createApp({})
 	```
 
-To register and register **`SampleComponent`**, within the same file, add the following statement before the app mount statement 
+	To register and register **`SampleComponent`**, within the same file, add the following statement before the app mount statement 
 
 	```javascript
 	app.component("sample-component", SampleComponent);
@@ -150,7 +150,7 @@ To register and register **`SampleComponent`**, within the same file, add the fo
 	app.mount('#app')
 	```
 
-So your **`app.js`** should look like
+	So your **`app.js`** should look like
 
 	```javascript
 	...
@@ -163,6 +163,14 @@ So your **`app.js`** should look like
 	app.component("sample-component", SampleComponent);
 	...
 	app.mount('#app')
+	```
+
+Make sure you run *`npm run dev`* if you are not already running *`npm run watch`* in an other terminal window.
+
+4. Now you can use this component like this in any blade page within project folder
+
+	```html
+	<sample-component></sample-component>
 	```
 
 ## Contributing
