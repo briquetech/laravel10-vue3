@@ -16,8 +16,9 @@ This is a boilerplate project that combines Laravel 10, Vue 3, the latest jQuery
 
 ### Prerequisites
 
-- [PHP](https://www.php.net/) 
-- [Laravel](https://www.laravel.com/) (Recommended version for Laravel 10)
+- [PHP](https://www.php.net/) (Recommended version for PHP is 8.1)
+- [Laravel](https://www.laravel.com/) (Recommended version for Laravel is 10)
+- [Laravel Mix](https://laravel-mix.com/) (Recommended version for Laravel Mix is 6)
 - [Node.js](https://nodejs.org/) (LTS version recommended)
 - [Composer](https://getcomposer.org/)
 - [Git](https://git-scm.com/)
@@ -90,32 +91,78 @@ To create a new component, following is the procedure:
 	resources/js/components
 	```
 
-if the 'component' directory doesnt exist, create one. For example, to create a Vue3 component called 'SampleComponent', create a file called 'SampleComponent.vue' within the above folder.
+if the 'component' directory doesnt exist, create one. For example, to create a Vue3 component called **`SampleComponent`**, create a file called **`SampleComponent.vue`** within the above folder.
 
-2. Copy the following code within the component or create your own
+2. Copy the following code within the component or create your own,
 
 	```html
 	<template>
-	<div>
-		<h1>{{ greeting }}</h1>
-		<button @click="changeGreeting">Change Greeting</button>
-	</div>
+		<div>
+			<h1>Hello {{ greeting }}!</h1>
+			<button @click="changeGreeting">Change Greeting</button>
+		</div>
 	</template>
 
 	<script>
 	export default {
-	data() {
-		return {
-		greeting: 'Hello, Vue 3!',
-		};
-	},
-	methods: {
-		changeGreeting() {
-		this.greeting = 'Hola, Vue 3!';
+		name: "SampleComponent",
+		data() {
+			return {
+				greeting: 'Vue 3',
+			};
 		},
-	},
+		methods: {
+			changeGreeting() {
+				this.greeting = 'Vue 4 (coming soon)';
+			},
+		},
 	};
 	</script>
+	```
+
+3. Open **`resources/js/app.js`**. To import **`SampleComponent`**, add the **import** statement
+
+	```javascript
+	import SampleComponent from "./components/SampleComponent";
+	```
+
+	before
+
+	```javascript
+	const app = createApp({})
+	```
+
+To register and register **`SampleComponent`**, within the same file, add the following statement before the app mount statement 
+
+	```javascript
+	app.component("sample-component", SampleComponent);
+	```
+
+	anytime after
+
+	```javascript
+	const app = createApp({})
+	```
+
+	and before 
+
+	```javascript
+	app.mount('#app')
+	```
+
+So your **`app.js`** should look like
+
+	```javascript
+	...
+	import { createApp } from 'vue'
+	import ExampleComponent from "./components/ExampleComponent";
+	...
+
+	const app = createApp({})
+	...
+	app.component("sample-component", SampleComponent);
+	...
+	app.mount('#app')
 	```
 
 ## Contributing
