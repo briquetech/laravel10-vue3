@@ -16,6 +16,9 @@
     <!-- Scripts -->
     <link rel="stylesheet" href="{{ mix('css/app.css') }}">
     <script src="{{ mix('js/app.js') }}" defer></script>
+	
+	<script src="https://unpkg.com/phosphor-icons"></script>
+	<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <div id="app">
@@ -77,5 +80,23 @@
             @yield('content')
         </main>
     </div>
+	<script>
+	// Assign the session variable to a JavaScript variable
+	let siteUserObject = null;
+	<?php if(\Illuminate\Support\Facades\Auth::check() ) :?>
+	siteUserObject = {!! \Illuminate\Support\Facades\Auth::user() !!};
+	<?php endif;?>
+	
+	let errors = {};
+	@if(session('errors'))
+		errors = {!! json_encode(session('errors')->all()) !!};
+	@else
+		@isset($errorMessage)
+			errors = {!! $errorMessage !!};
+		@endisset
+	@endif
+
+	const csrfToken = "{{ @csrf_token() }}";
+	</script>
 </body>
 </html>
