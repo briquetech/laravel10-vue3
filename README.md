@@ -84,6 +84,40 @@ Visit [http://localhost:8000](http://localhost:8000) in your browser to see the 
 
 To create a new component, following is the procedure:
 
+1. Create a component in the following directory
+
+	```bash
+	resources/js/components
+	```
+
+if the 'component' directory doesnt exist, create one. For example, to create a Vue3 component called 'SampleComponent', create a file called 'SampleComponent.vue' within the above folder.
+
+2. Copy the following code within the component or create your own
+
+	```html
+	<template>
+	<div>
+		<h1>{{ greeting }}</h1>
+		<button @click="changeGreeting">Change Greeting</button>
+	</div>
+	</template>
+
+	<script>
+	export default {
+	data() {
+		return {
+		greeting: 'Hello, Vue 3!',
+		};
+	},
+	methods: {
+		changeGreeting() {
+		this.greeting = 'Hola, Vue 3!';
+		},
+	},
+	};
+	</script>
+	```
+
 ## Contributing
 
 If you'd like to contribute, please fork the repository and create a pull request. All contributions are welcome!
