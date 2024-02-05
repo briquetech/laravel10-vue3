@@ -1,1 +1,93 @@
-# laravel10-vue3
+# Laravel 10, Vue 3, jQuery, Bootstrap 5.3 Boilerplate
+
+This is a boilerplate project that combines Laravel 10, Vue 3, the latest jQuery, and Bootstrap 5.3 to provide a solid foundation for further development.
+
+## Features
+
+- **Laravel 10:** The latest version of the popular PHP framework for building web applications.
+
+- **Vue 3:** A progressive JavaScript framework for building user interfaces. Leverage the power of reactive data binding and components.
+
+- **jQuery:** A fast, small, and feature-rich JavaScript library. It simplifies tasks like HTML document traversal and manipulation, event handling, and animation.
+
+- **Bootstrap 5.3:** The world's most popular front-end open-source toolkit, featuring responsive and mobile-first design for modern web development.
+
+## Getting Started
+
+### Prerequisites
+
+- [PHP](https://www.php.net/) 
+- [Laravel](https://www.laravel.com/) (Recommended version for Laravel 10)
+- [Node.js](https://nodejs.org/) (LTS version recommended)
+- [Composer](https://getcomposer.org/)
+- [Git](https://git-scm.com/)
+
+### Installation
+
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/briquetech/laravel10-vue3.git
+    ```
+
+2. Navigate to the project directory:
+
+    ```bash
+    cd your-project
+    ```
+
+3. Install PHP dependencies:
+
+    ```bash
+    composer install
+    ```
+
+4. Install Node.js dependencies:
+
+    ```bash
+    npm install
+    ```
+
+5. Run Artisan Optimize
+
+    ```bash
+    php artisan optimize:clear
+    ```
+
+6. Run migrations and seed the database for the admin user:
+
+    ```bash
+    php artisan migrate --seed
+    ```
+
+7. Compile assets:
+
+    ```bash
+    npm run dev
+    ```
+
+8. Serve the application:
+
+    ```bash
+    php artisan serve
+    ```
+
+9. Open a new window:
+
+	```bash
+	npm run watch
+	```
+
+Visit [http://localhost:8000](http://localhost:8000) in your browser to see the application.
+
+## Usage
+
+To create a new component, following is the procedure:
+
+## Contributing
+
+If you'd like to contribute, please fork the repository and create a pull request. All contributions are welcome!
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
