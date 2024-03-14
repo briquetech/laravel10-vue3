@@ -1,0 +1,100 @@
+.toggle-link{
+  text-decoration: none;
+}
+
+.sidebar {
+  position: fixed;
+  top: 55px;
+  bottom: 0;
+  left: 0;
+  z-index: 100; /* Behind the navbar */
+  padding: 0 0 0 5px; /* Height of navbar */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+  overflow: hidden;
+}
+
+.sidebar:hover {
+  overflow-y: scroll; /* Scrollable contents if viewport is shorter than content. */
+}
+
+@media (max-width: 767.98px) {
+  .sidebar {
+    top: 5rem;
+  }
+}
+
+.sidebar-sticky {
+  position: relative;
+  top: 0;
+  height: calc(100vh - 48px);
+  padding-top: .5rem;
+  overflow: hidden;
+}
+
+.sidebar-sticky:hover {
+  overflow-y: scroll; /* Scrollable contents if viewport is shorter than content. */
+}
+
+.sidebar .nav-link {
+  font-weight: 500;
+  color: #efefef;
+}
+
+.sidebar .nav-link .feather {
+  margin-right: 4px;
+  color: #727272;
+}
+
+.sidebar .nav-link.active {
+  color: #2470dc;
+}
+
+.sidebar .nav-link:hover .feather,
+.sidebar .nav-link.active .feather {
+  color: inherit;
+}
+
+.sidebar-heading {
+  font-size: .95rem;
+  color: white;
+  text-transform: uppercase;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+
+/** **/
+#calendar a{
+  text-decoration: none;
+}
+.fc-col-header > thead{
+  background-color: black;
+}
+.fc-col-header > thead a{
+  color: white;
+}
+.fc-daygrid-day-number{
+  color: black;
+}
+
+.max-height-400{
+  max-height: 400px;
+  overflow: auto;
+}
