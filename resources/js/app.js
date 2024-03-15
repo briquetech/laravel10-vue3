@@ -31,4 +31,24 @@ app.mixin(SWAlert);
 app.mixin(SWUtils);
 app.mixin(Masters);
 
+// DIRECTIVES
+// Use v-empty-zero
+app.directive("emptyZero", {
+    mounted(el) {
+        // Add a focus event listener
+        el.addEventListener("focus", function () {
+            if (parseFloat(el.value) == 0) {
+                el.value = "";
+            }
+        });
+
+        // Add a blur event listener
+        el.addEventListener("blur", function () {
+            if (el.value === "") {
+                el.value = "0";
+            }
+        });
+    },
+});
+
 app.mount('#app');
