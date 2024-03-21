@@ -98,3 +98,65 @@
   max-height: 400px;
   overflow: auto;
 }
+
+
+/* ========= TOOLTIP ========== */
+.cstooltip {
+	position: relative;
+}
+.cstooltip:after, .cstooltip:before {
+	opacity: 0;
+	pointer-events: none;
+	bottom: 100%;
+	left: 50%;
+	position: absolute;
+	z-index: 10;
+	transform: translate(-50%, 10px);
+	transform-origin: top;
+	transition: all 0.18s ease-out 0.18s;
+}
+
+.cstooltip:after {
+	background-color: #f5f5f5;
+	box-shadow: 0 0 3px #ddd;
+	content: attr(data-tooltip);
+	padding: 10px;
+	border: 1px solid #989898;
+	/* white-space: nowrap; */
+	margin-bottom: 11px;
+
+	bottom: auto;
+	left: 100%;
+	top: 50%;
+	transform: translate(-10px, -50%);
+
+	margin-left: 11px;
+
+	width: 150px;
+}
+
+.cstooltip:before {
+	width: 0;
+	height: 0;
+	content: "";
+	margin-bottom: 6px;
+	
+	border-top: 6px solid transparent;
+	border-right: 6px solid #f5f5f5;
+	border-bottom: 6px solid transparent;
+	margin-left: 6px;
+
+	bottom: auto;
+	left: 100%;
+	top: 50%;
+	transform: translate(-10px, -50%);
+}
+
+.cstooltip:hover:before, .cstooltip:hover:after {
+	opacity: 1;
+	pointer-events: auto;
+	transform: translate(-50%, 0);
+
+	transform: translate(0, -50%);
+}
+/* ========= TOOLTIP ========== */
