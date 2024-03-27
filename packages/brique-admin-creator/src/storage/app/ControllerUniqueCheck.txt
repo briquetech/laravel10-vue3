@@ -1,0 +1,2 @@
+				if( $checkTitle && \App\Models\{{objectName}}::where('{{uniqueColumn}}', ${{objectName-lowercase}}["{{uniqueColumn}}"])->where( "id", "!=", ${{objectName-lowercase}}["id"] )->where('status', 1)->count() > 0 )
+					return response()->json(["status" => -1, "messages" => ["{{uniqueColumnLabel}} has to be unique."]]);

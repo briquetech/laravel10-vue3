@@ -508,7 +508,6 @@
 										}
 										else {
 											let objValue = thisElem.processColumnForDisplay(row, column);
-											// console.log("Obj ", objValue);
 											rowValues.push(objValue);
 										}
 									}
@@ -529,16 +528,24 @@
 			},
 			processColumnForDisplay(row, column) {
 				let value = "";
-				// console.log(column);
 				if (column["property"].indexOf(".") > 0) {
 					let columnParts = column["property"].split(".");
 					let objectToDig = null;
 					columnParts.forEach((columnPart) => {
 						if (objectToDig == null) {
 							objectToDig = row[columnPart];
+							if (!objectToDig)
+								objectToDig = "Not Found";
 						}
 						else {
-							objectToDig = objectToDig[columnPart];
+							if (objectToDig[columnPart])
+								objectToDig = objectToDig[columnPart];
+							else {
+								if (column["alt_value"] && column["alt_value"].length > 0)
+									objectToDig = column["alt_value"];
+								else
+									objectToDig = "Not Found";
+							}
 						}
 					});
 					value = objectToDig;

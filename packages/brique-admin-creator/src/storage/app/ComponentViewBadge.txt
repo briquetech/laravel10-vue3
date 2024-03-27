@@ -1,0 +1,2 @@
+		<span class="badge rounded-pill bg-success" v-if="read{{objectName}}.{{fieldName}} == 1">ACTIVE</span>
+		<span class="badge rounded-pill bg-danger" v-if="read{{objectName}}.{{fieldName}} == 0">INACTIVE</span>

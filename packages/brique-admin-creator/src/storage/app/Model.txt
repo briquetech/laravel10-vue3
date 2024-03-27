@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+
+class {{objectName}} extends Model{
+    protected $table = "{{table_name}}";
+    protected $fillable = [{{all_columns}}];
+    public $timestamps = true;
+	
+	{{relationships}}
+	protected function actions(): Attribute{
+		return new Attribute(
+			get: function () {
+				$actions = [];
+				if( $this->status == 1 ){
+					$actions = [
+						'v' => [ 'title' => 'View', 'action' => 'viewObject', 'class' => 'btn-dark' ], 
+						'd' => [ 'title' => 'Deactivate', 'action' => 'toggleObjectStatus', 'class' => 'btn-secondary', 'additional_params' => [0] ]
+					];
+				}
+				else{
+					$actions = [
+						'e' => [ 'title' => 'Edit', 'action' => 'editObject', 'class' => 'btn-dark' ], 
+						'r' => [ 'title' => 'Activate', 'action' => 'toggleObjectStatus', 'class' => 'btn-success', 'additional_params' => [1] ]
+					];
+				}
+				return $actions;
+			}
+		);
+	}
+}

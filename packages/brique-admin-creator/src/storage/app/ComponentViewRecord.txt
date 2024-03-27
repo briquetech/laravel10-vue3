@@ -1,0 +1,16 @@
+		<div class="modal fade" ref="readModal" id="read{{objectName}}Modal" tabindex="-1" aria-labelledby="read{{objectName}}ModalLabel" aria-hidden="true" v-if="read{{objectName}}">
+			<div class="modal-dialog {{modalSize}}">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="read{{objectName}}ModalLabel">View {{objectName}}</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						{{fields}}
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-outline-dark btn-sm" data-bs-dismiss="modal">CLOSE</button>
+					</div>
+				</div>
+			</div>
+		</div>

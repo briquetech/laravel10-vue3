@@ -1,0 +1,31 @@
+{
+    "name": "brique-admin-creator",
+    "description": "This package will help create Admin modules.",
+    "type": "library",
+    "license": "BRQLicense",
+    "autoload": {
+        "psr-4": {
+            "BriqueAdminCreator\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "briquetech",
+            "email": "jayvpagnis@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "BriqueAdminCreator\\PackageServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {
+		"php": "^8.1",
+        "guzzlehttp/guzzle": "^7.2",
+        "laravel/framework": "^10.10",
+		"maennchen/zipstream-php": "^3.1"
+	}
+}

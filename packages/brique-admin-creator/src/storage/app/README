@@ -1,0 +1,41 @@
+I N S T R U C T I O N S
+-----------------------
+1. Install the package @vuelidate/validators
+npm install @vuelidate/core @vuelidate/validators
+npm install luxon
+
+2. Copy the Controller in App/Http/Controllers folder.
+
+3. Copy the Model into App/Models folder.
+
+4. Copy the Export file into App/Exports folder.
+
+5. Copy these routes in routes/api.php
+// {{objectName}}
+Route::post('/{{objectName-lowercase}}/get', [App\Http\Controllers\{{objectName}}Controller::class, 'get'])->name('get-{{objectName-lowercase}}-list');
+
+6. Copy these routes in routes/web.php
+// {{objectName}}
+Route::get('/{{objectName-lowercase}}', [App\Http\Controllers\{{objectName}}Controller::class, 'index'])->name('{{objectName-lowercase}}-list');
+Route::post('/{{objectName-lowercase}}/save', [App\Http\Controllers\{{objectName}}Controller::class, 'save'])->name('save-{{objectName-lowercase}}');
+Route::post('/select{{objectName-lowercase}}', [App\Http\Controllers\{{objectName}}Controller::class, 'loadForSelection'])->name('select{{objectName-lowercase}}');
+
+7. Add the following entries in resources/js/app.js
+import {{objectName}}Component from "./components/{{objectName}}Component";
+
+**After** the statement
+
+var app = createApp({ });
+
+and **before** mounting the app (look for the below statement)
+
+app.mount('#app');
+
+paste this code
+
+app.component("{{objectName-lowercase}}-component", {{objectName}}Component);
+
+8. Copy this HTML snippet as a menu item in resources/js/components/LeftNavbarComponent.vue
+					<li class="nav-item">
+						<a class="nav-link p-0 pt-2 d-flex align-items-center" :class="{ 'active': currentRoute === '{{objectName-lowercase}}' }" href="/{{objectName-lowercase}}"><i class="ph-camera me-2"></i><span>{{objectName}}</span></a>
+					</li>

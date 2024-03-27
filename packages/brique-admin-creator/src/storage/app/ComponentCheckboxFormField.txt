@@ -1,0 +1,4 @@
+<div class="form-check">
+	<input class="form-check-input" type="radio" name="add_{{objectName-lowercase}}_{{columnName}}" id="add_{{objectName-lowercase}}_{{columnName}}" v-model="{{objectName-lowercase}}ForAdd.{{columnName}}">
+	<label class="form-check-label" for="flexRadioDefault1">{{columnLabel}}</label>
+</div>

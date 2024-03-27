@@ -1,0 +1,15 @@
+async loadAll{{relation}}(active) {
+	var URL = "/api/{{relation-lowercase}}/get";
+	let allRecords = [];
+	var postArr = {};
+	if (active) postArr["active"] = 1;
+	await axios
+		.post(URL, postArr)
+		.then(function (response) {
+			allRecords = response.data;
+		})
+		.catch(function (error) {
+			console.log(error);
+		});
+	return allRecords;
+},

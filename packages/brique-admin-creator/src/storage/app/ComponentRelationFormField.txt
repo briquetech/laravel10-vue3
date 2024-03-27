@@ -1,0 +1,7 @@
+<select class="form-select" v-model="{{objectName-lowercase}}ForAdd.{{columnName}}" id="add_{{columnName}}">
+	<optgroup v-if="all{{relation-pascalcase}}List" label="Choose {{columnLabel}}">
+		<template v-for="{{relation-camelcase}} in all{{relation-pascalcase}}List" :key="{{relation-camelcase}}.id">
+			<option :value="{{relation-camelcase}}.id">{{ {{relation-camelcase}}.{{relationTitle}} }}</option>
+		</template>
+	</optgroup>{{defaultOption}}
+</select>

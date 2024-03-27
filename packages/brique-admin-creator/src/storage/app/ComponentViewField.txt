@@ -1,0 +1,6 @@
+<div class="col-{{fieldWidth}}">
+	<label class="form-label text-uppercase fw-bold m-0">{{fieldLabel}}</label>
+	<div>
+		{{fieldData}}
+	</div>
+</div>

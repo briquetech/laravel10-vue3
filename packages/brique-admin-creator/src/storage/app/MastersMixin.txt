@@ -1,0 +1,11 @@
+import { DateTime } from "luxon";
+
+export default {
+    data() {
+        return {};
+    },
+    mounted() {},
+    methods: {
+		{{methods}}
+	}
+}

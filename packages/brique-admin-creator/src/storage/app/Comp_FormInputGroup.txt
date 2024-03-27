@@ -1,0 +1,4 @@
+<div class="input-group mb-3">
+	{{columnPrefix}}<input type="text" class="form-control" placeholder="{{columnPlaceholder}}" aria-label="Username"
+	>{{columnSuffix}}
+</div>

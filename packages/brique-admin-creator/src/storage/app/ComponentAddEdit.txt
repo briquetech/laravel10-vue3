@@ -1,0 +1,17 @@
+		<div class="modal fade" ref="addEditModal" id="add{{objectName}}Modal" tabindex="-1" aria-labelledby="add{{objectName}}ModalLabel" aria-hidden="true">
+			<div class="modal-dialog {{modalSize}}">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="add{{objectName}}ModalLabel">ADD {{objectName-uppercase}}</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						{{fields}}
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-outline-dark btn-sm" data-bs-dismiss="modal" @click="cancelAddEdit()">CLOSE</button>
+						<button type="button" class="btn btn-dark btn-sm" @click="save{{objectName}}()">SAVE CHANGES</button>
+					</div>
+				</div>
+			</div>
+		</div>

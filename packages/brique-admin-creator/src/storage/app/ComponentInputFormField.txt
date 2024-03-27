@@ -1,0 +1,1 @@
+<input type="{{columnType}}" class="form-control" {{v-empty-zero}} v-model="{{objectName-lowercase}}ForAdd.{{columnName}}" id="add_{{objectName-lowercase}}_{{columnName}}" placeholder="{{columnHint}}">

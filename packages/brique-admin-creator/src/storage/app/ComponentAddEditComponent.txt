@@ -1,0 +1,6 @@
+<div class="col-{{fieldWidth}}">
+	<label for="add_{{objectName-lowercase}}_{{columnName}}" class="form-label text-uppercase fw-bold">{{columnLabel}}{{columnRequired}}</label>{{columnHelp}}{{columnRequiredError}}
+	<div{{formFieldClass}}>
+		{{fieldData}}
+	</div>
+</div>
