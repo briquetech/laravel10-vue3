@@ -19,4 +19,4 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/creator', [\BriqueAdminCreator\AdminCreatorController::class, 'index'])->name('creator');
 Route::post('/creator/brique/save-config', [\BriqueAdminCreator\AdminCreatorController::class, 'saveConfig'])->name('save-config');
-Route::get('/creator/download/{object}/{code}', [\BriqueAdminCreator\AdminCreatorController::class, 'downloadSomething'])->name('download-something');
+// Route::get('/creator/download/{object}/{code}', [\BriqueAdminCreator\AdminCreatorController::class, 'downloadSomething'])->name('download-something');

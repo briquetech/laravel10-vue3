@@ -60,7 +60,7 @@
 			<div class="accordion" id="accordionPanels">
 				<div class="accordion-item">
 					<h2 class="accordion-header" id="flush-basicDetails">
-						<button class="accordion-button collapsed text-bg-info" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">BASIC DETAILS: <span class="mx-2" v-if="db.length > 0">Database: <strong>(( db ))</strong></span><span class="" v-if="tbl.length > 0">Table: <strong>(( tbl ))</strong></span></button>
+						<button class="accordion-button collapsed text-bg-info p-2" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">BASIC DETAILS: <span class="mx-2 ps-2" v-if="db.length > 0">Database: <strong>(( db ))</strong></span><span class="ps-2" v-if="tbl.length > 0">Table: <strong>(( tbl ))</strong></span></button>
 					</h2>
 					<div id="flush-collapseOne" class="accordion-collapse collapse show" aria-labelledby="flush-basicDetails" data-bs-parent="#accordionPanels">
 						<div class="accordion-body">
@@ -69,19 +69,24 @@
 									<label for="databases" class="form-label">Select Table</label>
 									<div class="input-group mb-3">
 										<select id="databases" class="form-select" v-model="tbl">
+											<!-- <option value="addnew">--- Add New ---</option> -->
 											@foreach($tableNames as $tableName)
 											<option value="{{$tableName}}">{{$tableName}}</option>
 											@endforeach
 										</select>
-										<button class="btn btn-primary" type="button" @click="getTableStructure()">Get Structure</button>
+										<button class="btn btn-primary" type="button" @click="getTableStructure()" v-if="tbl == 'addnew'">Add Model</button>
+										<button class="btn btn-primary" type="button" @click="getTableStructure()" v-else>Get Structure</button>
 										<button type="button" class="btn btn-success" @click="loadResource()">Load Resource</button>
 									</div>
 								</div>
 								<div class="col-3">
 									<label for="databases" class="form-label">Navigation Group</label>
-									<input type="text" class="form-control" v-model="navigation_group">
-								</div>
-								<div class="col-3" v-if="tbl && tbl.length > 0">
+									<select class="form-select" v-model="navigation_group">
+										<optgroup label="Select one">
+											<option value="nav_open">Top Menu</option>
+											<option value="nav_masters">Masters Section</option>
+										</optgroup>
+									</select>
 								</div>
 							</div>
 							<!-- <div class="row" v-if="create_mode == 2">
@@ -95,7 +100,7 @@
 								</div>
 							</div> -->
 							<!--  -->
-							<div class="row mb-3" v-if="columns.length > 0">
+							<div class="row mb-3" v-if="columns.length > 0 || tbl == 'addnew'">
 								<div class="col-3">
 									<label for="objectName" class="form-label">Enter Object Name</label>
 									<div class="mb-3">
@@ -122,7 +127,7 @@
 								</div>
 							</div>
 							<!--  -->
-							<div class="row mb-3" v-if="columns.length > 0">
+							<div class="row mb-3" v-if="columns.length > 0 || tbl == 'addnew'">
 								<div class="col-3">
 									<label for="" class="form-label">Generate Add/Edit Form</label>
 									<div class="form-check">
@@ -148,9 +153,19 @@
 						</div>
 					</div>
 				</div>
+				<div class="accordion-item" v-if="tbl == 'addnew'">
+					<h2 class="accordion-header" id="flush-headingForm">
+						<button class="accordion-button collapsed text-bg-primary p-2" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseColumns" aria-expanded="false" aria-controls="flush-collapseColumns">ADD COLUMNS</button>
+					</h2>
+					<div id="flush-collapseColumns" class="accordion-collapse collapse" aria-labelledby="flush-headingForm" data-bs-parent="#accordionPanels">
+						<div class="accordion-body">
+							@include('brique-admin-creator::columns')
+						</div>
+					</div>
+				</div>
 				<div class="accordion-item" v-if="columns.length > 0 && create_add_edit">
 					<h2 class="accordion-header" id="flush-headingForm">
-						<button class="accordion-button collapsed text-bg-primary" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseForm" aria-expanded="false" aria-controls="flush-collapseForm">ADD/EDIT FORM COMPONENTS</button>
+						<button class="accordion-button collapsed text-bg-primary p-2" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseForm" aria-expanded="false" aria-controls="flush-collapseForm">ADD/EDIT FORM COMPONENTS</button>
 					</h2>
 					<div id="flush-collapseForm" class="accordion-collapse collapse" aria-labelledby="flush-headingForm" data-bs-parent="#accordionPanels">
 						<div class="accordion-body">
@@ -160,7 +175,7 @@
 				</div>
 				<div class="accordion-item" v-if="columns.length > 0 && create_list_view">
 					<h2 class="accordion-header" id="flush-headingTable">
-						<button class="accordion-button collapsed text-bg-success" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTable" aria-expanded="false" aria-controls="flush-collapseTable">LISTING TABLE COLUMNS</button>
+						<button class="accordion-button collapsed text-bg-success p-2" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTable" aria-expanded="false" aria-controls="flush-collapseTable">LISTING TABLE COLUMNS</button>
 					</h2>
 					<div id="flush-collapseTable" class="accordion-collapse collapse" aria-labelledby="flush-headingTable" data-bs-parent="#accordionPanels">
 						<div class="accordion-body">
@@ -170,7 +185,7 @@
 				</div>
 				<div class="accordion-item" v-if="columns.length > 0 && create_api">
 					<h2 class="accordion-header" id="flush-headingAPI">
-						<button class="accordion-button collapsed text-bg-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flush-headingAPICollapse" aria-expanded="false" aria-controls="flush-headingAPICollapse">APIs</button>
+						<button class="accordion-button collapsed text-bg-danger p-2" type="button" data-bs-toggle="collapse" data-bs-target="#flush-headingAPICollapse" aria-expanded="false" aria-controls="flush-headingAPICollapse">APIs</button>
 					</h2>
 					<div id="flush-headingAPICollapse" class="accordion-collapse collapse" aria-labelledby="flush-headingTable" data-bs-parent="#accordionPanels">
 						<div class="accordion-body">
@@ -180,7 +195,7 @@
 				</div>
 				<div class="accordion-item" v-if="columns.length > 0 && (create_list_view || create_add_edit || create_api)">
 					<h2 class="accordion-header" id="flush-headingFinalSteps">
-						<button class="accordion-button collapsed text-bg-warning" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFinalSteps" aria-expanded="false" aria-controls="flush-collapseFinalSteps">FINAL STEPS</button>
+						<button class="accordion-button collapsed text-bg-warning p-2" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFinalSteps" aria-expanded="false" aria-controls="flush-collapseFinalSteps">FINAL STEPS</button>
 					</h2>
 					<div id="flush-collapseFinalSteps" class="accordion-collapse collapse" aria-labelledby="flush-headingFinalSteps" data-bs-parent="#accordionPanels">
 						<div class="accordion-body">
@@ -190,7 +205,7 @@
 				</div>
 				<div class="accordion-item" v-if="columns.length > 0 && generated">
 					<h2 class="accordion-header" id="flush-headingResult">
-						<button class="accordion-button collapsed text-bg-dark" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseResult" aria-expanded="false" aria-controls="flush-collapseResult">RESULT</button>
+						<button class="accordion-button collapsed text-bg-dark p-2" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseResult" aria-expanded="false" aria-controls="flush-collapseResult">RESULT</button>
 					</h2>
 					<div id="flush-collapseResult" class="accordion-collapse collapse" aria-labelledby="flush-headingResult" data-bs-parent="#accordionPanels">
 						<div class="accordion-body">
@@ -290,7 +305,7 @@
 					frm_fields_per_row: 3,
 					view_fields_per_row: 3,
 					search_type: "simple",
-					navigation_group: "",
+					navigation_group: "nav_open",
 					navigation_badge: "",
 					uses_multiple_uploads: false,
 					enable_activate_deactivate: true,
@@ -308,7 +323,7 @@
 					gen_table_content: "",
 					gen_objcount_content: "",
 					gen_multiple_uploads: "",
-					add_edit_mode: 1,
+					add_edit_mode: 2,
 					create_mode: 1,
 					generated: false,
 					objectToSend: "",
@@ -372,6 +387,7 @@
 							});
 
 							if(column.name == 'created_by'){
+								column.use_in_form = false;
 								column.form_type = 'select';
 								column.frm_select_type = 'relation';
 								column.frm_related_model = "User";
@@ -417,7 +433,7 @@
 							if (proceed) {
 								['email'].forEach((match) => {
 									if (column.name.indexOf(match) >= 0) {
-										column.form_type = 'text';
+										column.form_type = 'email';
 										column.table_type = 'text';
 										proceed = false;
 									}
@@ -444,10 +460,11 @@
 							}
 							this.columns.push(column);
 						});
-						if (this.columns.length > 12)
-							this.add_edit_mode = 1;
-						else
-							this.add_edit_mode = 2;
+						// Coming soon
+						// if (this.columns.length > 12)
+						// 	this.add_edit_mode = 1;
+						// else
+						// 	this.add_edit_mode = 2;
 					}
 				},
 				addColumnToFormList() {
@@ -527,6 +544,7 @@
 						"columns": _columns,
 						"object_name": this.gen_resource_name,
 						"object_label": this.gen_object_label,
+						"navigation_group": this.navigation_group,
 						"create_add_edit": this.create_add_edit,
 						"create_list_view": this.create_list_view,
 						"create_api": this.create_api,
@@ -550,8 +568,10 @@
 							body: JSON.stringify(object)
 						});
 						let responseObj = await response.json();
-						this.gen_code = responseObj.code;
-						this.generated = true;
+						if( response.hasOwnProperty("status") && response.status == 1 ){
+							alert("Your component has been generated successfully!");
+							this.generated = true;
+						}
 					} else {
 						alert("Please enter object name");
 					}

@@ -1,47 +1,47 @@
-<div class="accordion" id="accordionColumns">
-	<div class="row mb-3">
-		<div class="col-2 py-2 text-end">
-			<label for="objectName" class="form-label">Create/Edit Mode</label>
-		</div>
-		<div class="col-6 py-2">
-			<div class="d-flex flex-row gap-3">
-				<div class="form-check">
-					<input class="form-check-input" type="radio" name="add_edit_mode" :id="'rad1'+tbl" value="1" v-model="add_edit_mode">
-					<label class="form-check-label" :for="'rad1'+tbl">In separate pages</label>
-				</div>
-				<div class="form-check">
-					<input class="form-check-input" type="radio" name="add_edit_mode" :id="'rad2'+tbl" value="2" v-model="add_edit_mode">
-					<label class="form-check-label" :for="'rad2'+tbl">As a popup</label>
-				</div>
+<div class="row mb-3">
+	<div class="col-2 py-2 text-end">
+		<label for="objectName" class="form-label">Create/Edit Mode</label>
+	</div>
+	<div class="col-6 py-2">
+		<div class="d-flex flex-row gap-3">
+			<div class="form-check">
+				<input class="form-check-input" type="radio" name="add_edit_mode" :id="'rad1'+tbl" value="1" v-model="add_edit_mode" disabled>
+				<label class="form-check-label" :for="'rad1'+tbl">In separate pages</label>
+			</div>
+			<div class="form-check">
+				<input class="form-check-input" type="radio" name="add_edit_mode" :id="'rad2'+tbl" value="2" v-model="add_edit_mode">
+				<label class="form-check-label" :for="'rad2'+tbl">As a popup</label>
 			</div>
 		</div>
 	</div>
-	<div class="row mb-3" v-if="columns && columns.length > 0">
-		<div class="col-2 py-2 text-end">
-			<label for="uniqueCheck" class="form-label">Select Column for Unique Check</label>
-		</div>
-		<div class="col-3 py-2">
-			<select class="form-select" v-model="unique_column" id="uniqueCheck">
-				<option value="none">None</option>
-				<template v-for="column in columns">
-					<option :value="column.name" v-if="['id', 'created_at', 'updated_at'].indexOf(column.name) < 0">(( column.name ))</option>
-				</template>
-			</select>
-			<p class="m-0">Please make sure that the column that you select here, has "text/numeric/date" data type.</p>
-		</div>
+</div>
+<div class="row mb-3" v-if="columns && columns.length > 0">
+	<div class="col-2 py-2 text-end">
+		<label for="uniqueCheck" class="form-label">Select Column for Unique Check</label>
 	</div>
-	<div class="row mb-4">
-		<div class="col-2 py-2 text-end">
-			<label for="objectName" class="form-label">Columns Per Row</label>
-		</div>
-		<div class="col-2">
-			<select class="form-select" v-model="frm_fields_per_row">
-				<option value="2">2</option>
-				<option value="3">3</option>
-				<option value="4">4</option>
-			</select>
-		</div>
+	<div class="col-3 py-2">
+		<select class="form-select" v-model="unique_column" id="uniqueCheck">
+			<option value="none">None</option>
+			<template v-for="column in columns">
+				<option :value="column.name" v-if="['id', 'created_at', 'updated_at'].indexOf(column.name) < 0">(( column.name ))</option>
+			</template>
+		</select>
+		<p class="m-0">Please make sure that the column that you select here, has "text/numeric/date" data type.</p>
 	</div>
+</div>
+<div class="row mb-4">
+	<div class="col-2 py-2 text-end">
+		<label for="objectName" class="form-label">Columns Per Row</label>
+	</div>
+	<div class="col-2">
+		<select class="form-select" v-model="frm_fields_per_row">
+			<option value="2">2</option>
+			<option value="3">3</option>
+			<option value="4">4</option>
+		</select>
+	</div>
+</div>
+<div class="accordion" id="accordionColumns">
 	<div class="accordion-item" v-for="(column, index) in columns">
 		<template v-if="['id', 'created_at', 'updated_at'].indexOf(column.name) < 0">
 			<h2 class="accordion-header" :id="'heading'+index">

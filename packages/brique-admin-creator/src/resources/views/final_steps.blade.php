@@ -15,10 +15,10 @@
 		</div>
 	</div>
 </div> -->
-<a href="#" title="" v-if="enableLinks" @click="downloadSomething('model')">Download Model</a>
 <div class="row mb-3">
 	<div class="col-12">
-		<button type="button" class="btn btn-primary me-3" @click="getResourceCode()">Generate</button>
-		<button type="button" class="btn btn-success" @click="saveResource()">Save</button>
+		<button type="button" class="btn btn-primary me-3" @click="getResourceCode()">Install Everything</button>
+		<!-- <button type="button" class="btn btn-success me-3" v-if="generated" @click="downloadSomething()">Download Model</button> -->
+		<!-- <button type="button" class="btn btn-success" @click="saveResource()">Save</button> -->
 	</div>
 </div>

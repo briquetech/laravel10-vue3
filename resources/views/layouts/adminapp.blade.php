@@ -73,7 +73,7 @@
 			<div class="container-fluid">
 				<div class="row">
 					<left-nav-component></left-nav-component>
-					<div class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-5 pt-4 pb-2">
+					<div class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4 pb-2">
 						@yield('content')
 					</div>
 				</div>

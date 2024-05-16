@@ -37,5 +37,5 @@ app.component("{{objectName-lowercase}}-component", {{objectName}}Component);
 
 8. Copy this HTML snippet as a menu item in resources/js/components/LeftNavbarComponent.vue
 					<li class="nav-item">
-						<a class="nav-link p-0 pt-2 d-flex align-items-center" :class="{ 'active': currentRoute === '{{objectName-lowercase}}' }" href="/{{objectName-lowercase}}"><i class="ph-camera me-2"></i><span>{{objectName}}</span></a>
+						<a class="nav-link p-0 pt-2 d-flex align-items-center" :class="{ 'active': currentRoute === '{{objectName-lowercase}}' }" href="/{{objectName-lowercase}}"><i class="ph-camera me-2"></i><span>{{objectLabel}}</span></a>
 					</li>

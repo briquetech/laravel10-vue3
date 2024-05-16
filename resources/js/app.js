@@ -14,6 +14,9 @@ import DatatableComponent from './components/common/DatatableComponent.vue';
 // All form errors
 import ErrorComponent from "./components/common/ErrorComponent.vue";
 
+// Users
+import UsersComponent from "./components/UsersComponent";
+
 const app = createApp({})
 
 // Components
@@ -25,6 +28,9 @@ app.component('left-nav-component', LeftNavbarComponent);
 
 // Pages
 app.component("example", ExampleComponent);
+
+// Users
+app.component("users-component", UsersComponent);
 
 // Mixins
 app.mixin(SWAlert);
