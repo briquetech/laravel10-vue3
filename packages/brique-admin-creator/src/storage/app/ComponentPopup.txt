@@ -35,6 +35,7 @@ function initialStateValidations() {
 }
 export default {
 	name: "{{objectName}}master",
+	props: ['current_user_id'],
 	setup() {
 		return {
 			v$: useVuelidate()
@@ -49,12 +50,14 @@ export default {
 				columns: [
 					{{listFields}}
 				],
+				data_to_send: { current_user_id: this.current_user_id } ,
 				reload: false,
 				search: '{{searchType}}',
 				{{advancedSearchParams}}
 			},
 			addEditModal: null,
 			readModal: null,
+			currentUser: siteUserObject,
 			{{objectName-lowercase}}ForAdd: initialState(),
 			read{{objectName}}: {},
 			{{masterVariables}}

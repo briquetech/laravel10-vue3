@@ -66,7 +66,7 @@ class ModelService{
 			elseif( $column["form_type"] == "numeric" )
 				$requiredColumnsCondition .= "|integer";
 			elseif( $column["form_type"] == "decimal" )
-				$requiredColumnsCondition .= "|decimal:2";
+				$requiredColumnsCondition .= "|decimal:0,2";
 			elseif( $column["form_type"] == "telephone" )
 				$requiredColumnsCondition .= "|min:6|max:12";
 			elseif( $column["form_type"] == "url" )

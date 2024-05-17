@@ -315,8 +315,8 @@ class ComponentService{
 					$allViewColumns = str_replace('{{fieldData}}', $componentViewBadge, $allViewColumns);
 				}
 				else{
+					$allOptionsContent = "";
 					if( $viewColumn["table_type"] == "textoptions" ){
-						$allOptionsContent = "";
 						foreach($viewColumn["tbl_options"] as $viewColumnOption){
 							$allOptionsContent .= '<span v-if="read{{objectName}}.{{fieldName}}==\''.$viewColumnOption["key"].'\'">'.$viewColumnOption["value"]."</span>\n";
 						}
@@ -325,9 +325,12 @@ class ComponentService{
 					else if( $viewColumn["table_type"] == "relation" ){
 						$allViewColumns = str_replace('{{fieldData}}', "<span v-if='read{{objectName}}.".$viewColumn["tbl_relation_method"]."?.".$viewColumn["related_to_model_title"]."'>{{ read{{objectName}}.".$viewColumn["tbl_relation_method"]."?.".$viewColumn["related_to_model_title"]." }}</span><span v-else><i>Not specified</i></span>", $allViewColumns);
 					}
-					if( $viewColumn["table_type"] == "yesno" ){
+					else if( $viewColumn["table_type"] == "yesno" ){
 						$allOptionsContent .= '<span v-if="read{{objectName}}.{{fieldName}}==1">Yes'."</span>\n";
 						$allOptionsContent .= '<span v-if="read{{objectName}}.{{fieldName}}==0">No'."</span>\n";
+					}
+					else if( $viewColumn["table_type"] == "datetime" ){
+						$allViewColumns = str_replace('{{fieldData}}', "<span v-if='read{{objectName}}.".$viewColumn["name"]."'>{{ formatMySQLDate(read{{objectName}}.".$viewColumn["name"].", 'MMM dd, yyyy') }}</span><span v-else><i>Not specified</i></span>", $allViewColumns);
 					}
 					else
 						$allViewColumns = str_replace('{{fieldData}}', "<span v-if='read{{objectName}}.".$viewColumn["name"]."'>{{ read{{objectName}}.".$viewColumn["name"]." }}</span><span v-else><i>Not specified</i></span>", $allViewColumns);
@@ -370,7 +373,7 @@ class ComponentService{
 					break;
 					
 				case "datetime":
-					$listFields .= "property: '" . $tableColumn["name"] . "";
+					$listFields .= "property: '" . $tableColumn["name"] . "', date_type: 'mysqldate', display_type: 'date', format: 'LLL dd, yyyy', ";
 					break;
 
 				case "text":

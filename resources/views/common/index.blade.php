@@ -1,6 +1,10 @@
 @extends('layouts.adminapp')
 
 @section('content')
+<?php $currentUserId = '';?>
+@isset($current_user_id)
+	<?php $currentUserId = (strlen($current_user_id) > 0?'current_user_id="'.$current_user_id.'"':"");?>
+@endisset
 <?php $objectIdVal = '';?>
 @isset($objectId)
 	<?php $objectIdVal = (strlen($objectId) > 0?'id="'.$objectId.'"':"");?>
@@ -18,6 +22,6 @@
 	<?php $paramVal3 = 'param3="'.(is_array($param3)?json_encode($param3):$param3).'"';?>
 @endisset
 
-<{{ $component }} {!! $paramVal1 !!} {!! $paramVal2 !!} {!! $paramVal3 !!} {!! $objectIdVal !!}></{{ $component }}>
+<{{ $component }} {!! $paramVal1 !!} {!! $paramVal2 !!} {!! $paramVal3 !!} {!! $objectIdVal !!} {!! $currentUserId !!}></{{ $component }}>
 
 @endsection

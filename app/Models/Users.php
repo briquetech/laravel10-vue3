@@ -7,9 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class Users extends Model{
     protected $table = "users";
-    protected $fillable = ['name', 'email', 'password', 'department', 'employee_code', 'status'];
+    protected $fillable = ['name', 'email', 'password', 'department', 'employee_code', 'reporting_to', 'status'];
     public $timestamps = true;
 	
+	protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+	
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 	
 	protected function actions(): Attribute{
 		return new Attribute(

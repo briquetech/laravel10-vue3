@@ -114,8 +114,10 @@ class AdminCreatorController extends \App\Http\Controllers\Controller{
 		$controllerContents = ModelService::generateControllerContent($jsonObject, $searchColumns, $requiredColumns, $uniqueColumn, $tableRelationshipColumns);
 		// =====================
 		$componentContents = ComponentService::generateComponentContent($jsonObject, $formColumns, $tableColumns, $viewColumns);
-		$componentContents = str_replace('{{uniqueColumn}}', $uniqueColumn["name"], $componentContents);
-		$componentContents = str_replace('{{uniqueColumnLabel}}', $uniqueColumn["frm_label"], $componentContents);
+		if( $uniqueColumn != null && !empty($uniqueColumn) ){
+			$componentContents = str_replace('{{uniqueColumn}}', $uniqueColumn["name"], $componentContents);
+			$componentContents = str_replace('{{uniqueColumnLabel}}', $uniqueColumn["frm_label"], $componentContents);
+		}
 		// =====================
 		$exportContents = ModelService::generateExportContent($jsonObject, $requiredColumns);
 		// =====================

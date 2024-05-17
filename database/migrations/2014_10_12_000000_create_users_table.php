@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('department');
             $table->string('employee_code');
+	    $table->integer('reporting_to')->default(0);
             $table->boolean('status')->default(true);
             $table->rememberToken();
             $table->timestamps();
@@ -28,8 +29,7 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
-    {
+    public function down(): void{
         Schema::dropIfExists('users');
     }
 };

@@ -442,9 +442,10 @@
 				if(this.dataprops && this.dataprops.base_url && this.dataprops.base_url.length > 0){
 					var thisElem = this;
 					var URL = this.dataprops.base_url+'get';
-					var postArr = {
-						page: this.currentPage
-					};
+					var postArr = {};
+					if (this.dataprops.hasOwnProperty('data_to_send'))
+						postArr = Object.assign({}, this.dataprops.data_to_send);
+					postArr['page'] = this.currentPage;
 					postArr['search'] = this.dataprops.search;
 					// if (this.dataprops.search == 'advanced'){
 						// check for advanced filters

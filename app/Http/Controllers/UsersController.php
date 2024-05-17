@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller{
 
@@ -129,10 +130,9 @@ class UsersController extends Controller{
 			if( $users["action"] == "details" ){
 				$rules = [
 					'name' => 'required|string',
-'email' => 'required|email:filter',
-'password' => 'required|string',
-'employee_code' => 'required|string',
-
+					'email' => 'required|email:filter',
+					'password' => 'required|string',
+					'employee_code' => 'required|string',
 				];
 				$validator = Validator::make($users, $rules);
 				if ($validator->fails()) {
@@ -141,8 +141,9 @@ class UsersController extends Controller{
 				$objectToSave = $users;
 				if(!isset($objectToSave["created_by"]))
 					$objectToSave["created_by"] = Auth::id();
-								if( $checkTitle && \App\Models\Users::where('email', $users["email"])->where( "id", "!=", $users["id"] )->where('status', 1)->count() > 0 )
+				if( $checkTitle && \App\Models\Users::where('email', $users["email"])->where( "id", "!=", $users["id"] )->where('status', 1)->count() > 0 )
 					return response()->json(["status" => -1, "messages" => ["Email has to be unique."]]);
+				$objectToSave['password'] = Hash::make($objectToSave['password']);
 			}
 			\App\Models\Users::updateOrCreate( [ "id" => $users["id"] ], $objectToSave );
 			return response()->json(["status" => 1]);

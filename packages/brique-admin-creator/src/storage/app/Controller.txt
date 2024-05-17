@@ -13,7 +13,8 @@ class {{objectName}}Controller extends Controller{
 	//
 	public function index(){
 		$component = '{{objectName-lowercase}}-component';
-		return view('common.index', compact('component'));
+		$current_user_id = auth()->id();
+		return view('common.index', compact('component', 'current_user_id'));
 	}
 
 	public function get(Request $request){
