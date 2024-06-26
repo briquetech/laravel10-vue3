@@ -19,9 +19,19 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::middleware(['auth'])->group(function () {
 
-// Users
-Route::get('/users', [App\Http\Controllers\UsersController::class, 'index'])->name('users-list');
-Route::post('/users/save', [App\Http\Controllers\UsersController::class, 'save'])->name('save-users');
-Route::post('/selectusers', [App\Http\Controllers\UsersController::class, 'loadForSelection'])->name('selectusers');
+	Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+	// Role
+	Route::get('/role', [App\Http\Controllers\RoleController::class, 'index'])->name('role-list');
+	Route::post('/role/save', [App\Http\Controllers\RoleController::class, 'save'])->name('save-role');
+	Route::post('/selectrole', [App\Http\Controllers\RoleController::class, 'loadForSelection'])->name('selectrole');
+	Route::post('/role/get-permitted-objects', [App\Http\Controllers\RoleController::class, 'getPermittedObjects'])->name('role-objects');
+
+	// User
+	Route::get('/user', [App\Http\Controllers\UserController::class, 'index'])->name('user-list');
+	Route::post('/user/save', [App\Http\Controllers\UserController::class, 'save'])->name('save-user');
+	Route::post('/selectuser', [App\Http\Controllers\UserController::class, 'loadForSelection'])->name('selectuser');
+
+});

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -26,9 +27,31 @@ class DatabaseSeeder extends Seeder
 			'password' => Hash::make('admin@123'),
 			'department' => 'Administration',
 			'employee_code' => 'BRQ00001',
+			'reporting_to' => 0,
+			'role_id' => 1,
 			'status' => true,
 			'created_at' => date("Y-m-d H:i:s"),
 			'updated_at' => date("Y-m-d H:i:s")
+		]);
+
+		\App\Models\Role::create([
+			'title' => 'Administrator'
+		]);
+
+		\App\Models\PlatformObject::create([
+			'title' => 'User'
+		]);
+		\App\Models\PlatformObject::create([
+			'title' => 'Role'
+		]);
+
+		DB::table('role_object_mapping')->insert([
+			'role_id' => 1,
+			'platform_object_id' => 1
+		]);
+		DB::table('role_object_mapping')->insert([
+			'role_id' => 1,
+			'platform_object_id' => 2
 		]);
 	}
 }

@@ -30,10 +30,28 @@ class ModelService{
 		return $modelContents;
 	}
 
+	// Resource for the Model
+	public static function generateModelResourceContent($jsonObject, $fillableColumns, $relationshipColumns){
+		$modelResourceContents = file_get_contents(__DIR__.'/storage/app/ModelResource.txt');
+		$modelResourceContents = str_replace('{{objectName}}', $jsonObject["object_name"], $modelResourceContents);
+		$resourceColumns = "";
+		foreach ($fillableColumns as $fillableColumn) {
+			$resourceColumns .= "'".$fillableColumn."' => \$this->".$fillableColumn.",\n";
+		}
+		foreach ($relationshipColumns as $column) {
+			$resourceColumns .= "'".$column["tbl_relation_method"]."' => \$this->".$column["tbl_relation_method"].",\n";
+		}
+		$modelResourceContents = str_replace('{{resource-fields}}', $resourceColumns, $modelResourceContents);
+		return $modelResourceContents;
+	}
+
+	// Controller
 	public static function generateControllerContent($jsonObject, $searchColumns, $requiredColumns, $uniqueColumn, $tableRelationshipColumns){
 		$controllerContents = file_get_contents(__DIR__.'/storage/app/Controller.txt');
+		$controllerSimpleSeearchClauseContents = file_get_contents(__DIR__.'/storage/app/ControllerSimpleSearchClause.txt');
 		// Controller - replace tokens
 		$controllerContents = str_replace('{{objectName}}', $jsonObject["object_name"], $controllerContents);
+		$controllerContents = str_replace('{{objectLabel}}', $jsonObject["object_label"], $controllerContents);
 		$controllerContents = str_replace('{{objectName-lowercase}}', strtolower($jsonObject["object_name"]), $controllerContents);
 		$simpleSearchColumns = "";
 		$advancedSearchColumnsMatch = "";
@@ -56,6 +74,7 @@ class ModelService{
 				$advancedSearchColumnsLike .= "\n";
 			}
 		}
+
 		$requiredColumnsCondition = "";
 		foreach ($requiredColumns as $column) {
 			$requiredColumnsCondition .= "'".$column['name']."' => 'required";
@@ -96,16 +115,23 @@ class ModelService{
 		}
 		$controllerContents = str_replace('{{uniqueColumnPart}}', $uniqueColumnContents, $controllerContents);
 		$withClause = "";
+		$relationshipSearch = "";
 		if( count($tableRelationshipColumns) > 0 ){
 			$withClause = "with(";
 			foreach ($tableRelationshipColumns as $tableRelationshipColumn) {
 				$withClause .= "'".$tableRelationshipColumn["tbl_relation_method"]."', ";
+				if( array_search($tableRelationshipColumn["name"], $searchColumns) >= 0 ){
+					$relationshipSearch .= $controllerSimpleSeearchClauseContents;
+					$relationshipSearch = str_replace('{{objectName-lowercase}}', strtolower($jsonObject["object_name"]), $relationshipSearch);
+					$relationshipSearch = str_replace('{{objectRelationshipName}}', $tableRelationshipColumn["tbl_relation_method"], $relationshipSearch);
+					$relationshipSearch = str_replace('{{columnName}}', $tableRelationshipColumn["related_to_model_title"], $relationshipSearch);
+				}
 			}
 			$withClause = substr($withClause, 0, strlen($withClause)-2);
 			$withClause .= ")->";
-
 		}
 		$controllerContents = str_replace('{{withClause}}', $withClause, $controllerContents);
+		$controllerContents = str_replace('{{simpleSearchRelationshipColumns}}', $relationshipSearch, $controllerContents);
 		return $controllerContents;
 	}
 

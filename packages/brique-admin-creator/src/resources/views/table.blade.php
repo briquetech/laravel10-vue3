@@ -31,7 +31,7 @@
 	<div class="col-3 py-2">
 		<select class="form-select" v-model="activate_deactivate_column">
 			<template v-for="column in columns">
-				<option :value="column.name" v-if="['id', 'created_at', 'updated_at'].indexOf(column.name) < 0">(( column.name ))</option>
+				<option :value="column.name" v-if="['id', 'created_at', 'updated_at', 'created_by'].indexOf(column.name) < 0">(( column.name ))</option>
 			</template>
 		</select>
 		<p class="m-0">Please make sure that the column that you select here, has "boolean" data type.</p>
@@ -51,7 +51,7 @@
 </div>
 <div class="accordion" id="accordionTblColumns">
 	<div class="accordion-item" v-for="(column, index) in columns">
-		<template v-if="['id', 'created_at', 'updated_at'].indexOf(column.name) < 0">
+		<template v-if="['id', 'created_at', 'updated_at', 'status', 'created_by'].indexOf(column.name) < 0">
 			<h2 class="accordion-header" :id="'tblheading'+index">
 				<div class="d-flex flex-row accordion-button p-0 pe-auto" :class="column.use_in_table_view?'selected_column':''">
 					<div class="py-4 px-2 flex-grow-1 fw-normal">
@@ -165,7 +165,7 @@
 					</div>
 					<!-- Text if empty -->
 					<!-- Common Searchable -->
-					<div class="row mb-3" v-if="search_type == 'simple' && column.table_type != 'icon' && column.table_type != 'image'">
+					<div class="row mb-3" v-if="column.use_in_table && search_type == 'simple' && column.table_type != 'icon' && column.table_type != 'image'">
 						<label class="form-label small pt-2 col-2 text-end">Searchable</label>
 						<div class="col-6 d-flex flex-row gap-4 py-2">
 							<div class="form-check">
@@ -176,7 +176,7 @@
 					</div>
 					<!-- Common Searchable -->
 					<!-- Searchable -->
-					<div class="row mb-3" v-if="search_type == 'advanced' && column.table_type != 'icon' && column.table_type != 'image'">
+					<div class="row mb-3" v-if="column.use_in_table && search_type == 'advanced' && column.table_type != 'icon' && column.table_type != 'image'">
 						<label class="form-label small pt-2 col-2 text-end">Searchable</label>
 						<div class="col-6 d-flex flex-row gap-4 py-2">
 							<div class="form-check">
@@ -187,7 +187,7 @@
 					</div>
 					<!-- Searchable -->
 					<!-- Sortable -->
-					<div class="row mb-3" v-if="column.table_type != 'icon' && column.table_type != 'image'">
+					<div class="row mb-3" v-if="column.use_in_table && column.table_type != 'icon' && column.table_type != 'image'">
 						<label class="form-label small pt-2 col-2 text-end">Sortable</label>
 						<div class="col-6 d-flex flex-row gap-4 py-2">
 							<div class="form-check">

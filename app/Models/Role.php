@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
+class Role extends Model{
+    protected $table = "role";
+    protected $fillable = ['title', 'status'];
+    public $timestamps = true;
+
+	protected $hidden = ['pivot', 'created_at', 'updated_at' ];
+	
+	public function objects(): BelongsToMany{
+		return $this->belongsToMany(PlatformObject::class, 'role_object_mapping', 'role_id', 'platform_object_id');
+	}
+}

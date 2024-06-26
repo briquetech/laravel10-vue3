@@ -18,7 +18,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Users
-Route::post('/users/get', [App\Http\Controllers\UsersController::class, 'get'])->name('get-users-list');
-// Users
-Route::post('/users/get', [App\Http\Controllers\UsersController::class, 'get'])->name('get-users-list');
+// Role
+Route::post('/role/get', [App\Http\Controllers\RoleController::class, 'get'])->name('get-role-list');
+// User
+Route::post('/user/get', [App\Http\Controllers\UserController::class, 'get'])->name('get-user-list');

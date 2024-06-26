@@ -20,9 +20,15 @@
           <span>Masters</span>
         </h4>
         <ul class="navbar-nav nav flex-column" id="nav_masters">
-          <li class="nav-item">
-            <a class="nav-link p-0 pt-2 d-flex align-items-center" :class="{ 'active': currentRoute === 'users' }" href="/users">
-              <i class="ph-users me-2"></i>
+          <li class="nav-item" v-if="menuState == 1 && permittedObjects.indexOf('Role') >= 0">
+            <a class="nav-link p-0 pt-2 d-flex align-items-center" :class="{ 'active': currentRoute === 'role' }" href="/role">
+              <i class="ph-camera me-2"></i>
+              <span>Role</span>
+            </a>
+          </li>
+          <li class="nav-item" v-if="menuState == 1 && permittedObjects.indexOf('User') >= 0">
+            <a class="nav-link p-0 pt-2 d-flex align-items-center" :class="{ 'active': currentRoute === 'user' }" href="/user">
+              <i class="ph-camera me-2"></i>
               <span>Users</span>
             </a>
           </li>
@@ -46,7 +52,8 @@ const firstEndpoint = pathSegments[1]; // Index 0 is an empty string due to lead
 
 export default {
    data(){
-		return{
+		return {
+			menuState: 0,
 			// For toggling
 			salesMasters: true,
 			salesTransac: false,
@@ -54,7 +61,27 @@ export default {
 			mainMasters: false,
 			userMasters: false,
 			otherMasters: false,
-			currentRoute: firstEndpoint
+			permittedObjects: [], 
+			currentRoute: firstEndpoint,
+			currentUser: siteUserObject
+		}
+	},
+	mounted() {
+		if (this.currentUser) {
+			var that = this;
+			axios.post("/role/get-permitted-objects", { role_id: this.currentUser.role_id })
+				.then(function (response) {
+					console.log(response.data);
+					if (response.data.hasOwnProperty("status") && response.data.status == 1) {
+						that.menuState = 1;
+						if (response.data.hasOwnProperty("permitted_objects")) {
+							that.permittedObjects = response.data.permitted_objects;						
+						}
+					}
+				})
+				.catch(function (error) {
+					console.log(error);
+				});
 		}
 	}
 }

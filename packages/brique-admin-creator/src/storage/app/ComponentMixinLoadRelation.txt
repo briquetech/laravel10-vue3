@@ -6,7 +6,7 @@ async loadAll{{relation}}(active) {
 	await axios
 		.post(URL, postArr)
 		.then(function (response) {
-			allRecords = response.data;
+			allRecords = response.data.data;
 		})
 		.catch(function (error) {
 			console.log(error);

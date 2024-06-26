@@ -227,6 +227,7 @@
 		function initialColumnState() {
 			return {
 				name: "",
+				show: true,
 				// For form
 				use_in_form: false,
 				frm_hint: "",
@@ -370,6 +371,7 @@
 							}
 
 							if (column.name == 'status'){
+								column.show = false;
 								column.badge = true;
 								column.use_in_table_view = true;
 								column.use_in_view = true;
@@ -387,6 +389,7 @@
 							});
 
 							if(column.name == 'created_by'){
+								column.show = false;
 								column.use_in_form = false;
 								column.form_type = 'select';
 								column.frm_select_type = 'relation';
@@ -568,7 +571,7 @@
 							body: JSON.stringify(object)
 						});
 						let responseObj = await response.json();
-						if( response.hasOwnProperty("status") && response.status == 1 ){
+						if( responseObj.hasOwnProperty("status") && responseObj.status == 1 ){
 							alert("Your component has been generated successfully!");
 							this.generated = true;
 						}

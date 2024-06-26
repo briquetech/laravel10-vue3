@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
+use App\Models\PlatformObject;
 
 class {{objectName}}Controller extends Controller{
 
@@ -14,7 +16,25 @@ class {{objectName}}Controller extends Controller{
 	public function index(){
 		$component = '{{objectName-lowercase}}-component';
 		$current_user_id = auth()->id();
-		return view('common.index', compact('component', 'current_user_id'));
+		if( auth()->user()->role_id == 1 ){
+			$all_permissions = "111";
+		}
+		else{
+			// Common code for authorization
+			$platformObject = PlatformObject::where('name', '{{objectName}}')->first();
+			$permissions = DB::table('role_object_mapping')
+				->where('role_id', auth()->user()->role_id)
+				->where('platform_object_id', $platformObject->id)
+				->first();
+			$all_permissions = "1";
+			if( $permissions !== null ){
+				$all_permissions .= ($permissions->can_add_edit ? "1": "0");
+				$all_permissions .= ($permissions->can_delete ? "1": "0");
+			}
+			else
+				abort(403);
+		}
+		return view('common.index', compact('component', 'current_user_id', 'all_permissions'));
 	}
 
 	public function get(Request $request){
@@ -29,6 +49,7 @@ class {{objectName}}Controller extends Controller{
 				${{objectName-lowercase}}List = ${{objectName-lowercase}}List->where(function($query) use ($input) {
 					$query = $query->{{simpleSearchColumns}};
 				});
+				{{simpleSearchRelationshipColumns}}
 			}
 		}
 		else{
@@ -111,8 +132,7 @@ class {{objectName}}Controller extends Controller{
 			else
 				${{objectName-lowercase}}List = ${{objectName-lowercase}}List->get();
 		}
-		${{objectName-lowercase}}List->append(['actions']);
-		return ${{objectName-lowercase}}List->toJson();
+		return \App\Http\Resources\{{objectName}}Resource::collection(${{objectName-lowercase}}List);
 	}
 
 	// Save {{objectName-lowercase}}
@@ -136,15 +156,19 @@ class {{objectName}}Controller extends Controller{
 					return response()->json(["status" => -1, "messages" => array_merge(...array_values($validator->errors()->toArray())) ]);
 				}
 				$objectToSave = ${{objectName-lowercase}};
-				if(!isset($objectToSave["created_by"]))
-					$objectToSave["created_by"] = Auth::id();
+				if(  ${{objectName-lowercase}}["id"] == 0 ){
+					if(!isset($objectToSave["created_by"]) )
+						$objectToSave["created_by"] = Auth::id();
+				}
+				else
+					unset($objectToSave["created_by"]);
 				{{uniqueColumnPart}}
 			}
 			\App\Models\{{objectName}}::updateOrCreate( [ "id" => ${{objectName-lowercase}}["id"] ], $objectToSave );
 			return response()->json(["status" => 1]);
 		}
 		else{
-			return response()->json(["status" => -100, "messages" => ["Data for {{objectName}} is missing."]]);
+			return response()->json(["status" => -100, "messages" => ["Data for {{objectLabel}} is missing."]]);
 		}
 	}
 }

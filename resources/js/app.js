@@ -14,8 +14,12 @@ import DatatableComponent from './components/common/DatatableComponent.vue';
 // All form errors
 import ErrorComponent from "./components/common/ErrorComponent.vue";
 
+
+// Role
+import RoleComponent from "./components/RoleComponent";
+
 // Users
-import UsersComponent from "./components/UsersComponent";
+import UserComponent from "./components/UserComponent";
 
 const app = createApp({})
 
@@ -29,8 +33,11 @@ app.component('left-nav-component', LeftNavbarComponent);
 // Pages
 app.component("example", ExampleComponent);
 
+// Role
+app.component("role-component", RoleComponent);
+
 // Users
-app.component("users-component", UsersComponent);
+app.component("user-component", UserComponent);
 
 // Mixins
 app.mixin(SWAlert);

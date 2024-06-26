@@ -1,12 +1,11 @@
 <?php
 namespace BriqueAdminCreator;
 
-use BriqueAdminCreator\Models\GeneratedModule;
+use App\Models\PlatformObject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 
 class AdminCreatorController extends \App\Http\Controllers\Controller{
 
@@ -19,7 +18,7 @@ class AdminCreatorController extends \App\Http\Controllers\Controller{
 		$tableNames = [];
 		foreach ($tables as $table) {
 			$tableValues = array_values(json_decode(json_encode($table), true));
-			if( !in_array($tableValues[0], ["failed_jobs", "migrations", "password_reset_tokens", "password_resets", "personal_access_tokens"]) )
+			if( !in_array($tableValues[0], ["failed_jobs", "migrations", "password_reset_tokens", "password_resets", "personal_access_tokens", "users", "role", "platform_object", "role_object_mapping"]) )
 				array_push($tableNames, $tableValues[0]);
 		}
 		return view('brique-admin-creator::creatorhome', compact("tableNames"));
@@ -108,8 +107,13 @@ class AdminCreatorController extends \App\Http\Controllers\Controller{
 			if( $jsonObject["unique_column"] != null && $jsonObject["unique_column"] == $column["name"] )
 				$uniqueColumn = $column;
 		}
+		// Check for created_by
+		if( !in_array('created_by', $fillableColumns)){
+			array_push($fillableColumns, 'created_by');
+		}
 		// MODEL - replace tokens
 		$modelContents = ModelService::generateModelContent($jsonObject, $fillableColumns, $tableRelationshipColumns);
+		$modelResourceContent = ModelService::generateModelResourceContent($jsonObject, $fillableColumns, $tableRelationshipColumns);
 		// =====================
 		$controllerContents = ModelService::generateControllerContent($jsonObject, $searchColumns, $requiredColumns, $uniqueColumn, $tableRelationshipColumns);
 		// =====================
@@ -127,10 +131,13 @@ class AdminCreatorController extends \App\Http\Controllers\Controller{
 		// =====================
 
 		// =====================
-		// Install Model in the folder
+		// Install Model and resource in the folder
 		file_put_contents(base_path().DIRECTORY_SEPARATOR.
 			'app'.DIRECTORY_SEPARATOR.'Models'.DIRECTORY_SEPARATOR.
 			$jsonObject["object_name"].'.php', $modelContents, LOCK_EX);
+		file_put_contents(base_path().DIRECTORY_SEPARATOR.
+			'app'.DIRECTORY_SEPARATOR.'Http'.DIRECTORY_SEPARATOR.'Resources'.DIRECTORY_SEPARATOR.
+			$jsonObject["object_name"].'Resource.php', $modelResourceContent, LOCK_EX);
 		// Controller
 		file_put_contents(base_path().DIRECTORY_SEPARATOR.
 			'app'.DIRECTORY_SEPARATOR.'Http'.DIRECTORY_SEPARATOR.'Controllers'.DIRECTORY_SEPARATOR.
@@ -175,41 +182,6 @@ class AdminCreatorController extends \App\Http\Controllers\Controller{
 					'resources'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'mixins'.DIRECTORY_SEPARATOR.
 					'masters.js', $componentMixinContents, LOCK_EX);
 			}
-		}
-		// Menu Item
-		// 1. Load the LeftNavbarComponent. It must exist
-		$leftNavbarComponentPath = base_path().DIRECTORY_SEPARATOR.
-			'resources'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'LeftNavbarComponent.vue';
-		if( file_exists($leftNavbarComponentPath) ){
-			$leftNavbarComponentContents = file_get_contents($leftNavbarComponentPath);
-			$_templateStart = strpos($leftNavbarComponentContents, "<template>");
-			$_templateEnd = strrpos($leftNavbarComponentContents, "</template>");
-			$leftNavbarComponentDocContents = substr($leftNavbarComponentContents, $_templateStart, ($_templateEnd-$_templateStart+11));
-			$doc = new \DOMDocument();
-			$doc->preserveWhiteSpace = false;
-			$doc->formatOutput = true;
-			// Suppress errors caused by malformed HTML
-			libxml_use_internal_errors(true);
-			$doc->loadXML(trim($leftNavbarComponentDocContents));
-			$xpath = new \DOMXPath($doc);
-			$parentNodes = $xpath->query("//*[@id='".$jsonObject["navigation_group"]."']");
-			if ($parentNodes->length > 0) {
-				$parentNode = $parentNodes->item(0);
-				$menuItem = <<<MENU
-<li class="nav-item"><a class="nav-link p-0 pt-2 d-flex align-items-center" :class="{ 'active': currentRoute === '{{objectName-lowercase}}' }" href="/{{objectName-lowercase}}"><i class="ph-camera me-2"></i><span>{{objectLabel}}</span></a></li>
-MENU;
-				$menuItem = str_replace('{{objectName}}', $jsonObject["object_name"], $menuItem);
-				$menuItem = str_replace('{{objectName-lowercase}}', strtolower($jsonObject["object_name"]), $menuItem);
-				$menuItem = str_replace('{{objectLabel}}', $jsonObject["object_label"], $menuItem);
-				if (!empty($menuItem) && simplexml_load_string($menuItem)) {
-					$fragment = $doc->createDocumentFragment();
-					if( $fragment->appendXML($menuItem) )
-						$parentNode->appendChild($fragment);
-				}
-				$leftNavbarComponentContents = substr_replace($leftNavbarComponentContents, $doc->saveXML($doc->documentElement, LIBXML_NOEMPTYTAG | LIBXML_NOXMLDECL), $_templateStart, ($_templateEnd-$_templateStart+11));
-				file_put_contents($leftNavbarComponentPath, $leftNavbarComponentContents, LOCK_EX);
-			}
-			libxml_use_internal_errors(false);
 		}
 		// Add Routes 
 		$apiRoutesPath = base_path().DIRECTORY_SEPARATOR.'routes'.DIRECTORY_SEPARATOR.'api.php';
@@ -303,6 +275,17 @@ ROUTE;
 			}
 		}
 		file_put_contents($appJsPath, $appJsContents);
+		try {
+			PlatformObject::create([
+				"title" => $jsonObject["object_label"],
+				"name" => $jsonObject["object_label"],
+				"url" => "/".strtolower($jsonObject["object_name"]),
+				"status" => true,
+				"created_by" => 1
+			]);
+		} catch (\Throwable $th) {
+			throw $th;
+		}
 		return response()->json(["status" => 1]);
 	}
 

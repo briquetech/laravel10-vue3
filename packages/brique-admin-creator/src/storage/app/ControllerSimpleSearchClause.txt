@@ -1,0 +1,3 @@
+${{objectName-lowercase}}List = ${{objectName-lowercase}}List->orWhereHas('{{objectRelationshipName}}', function ($query) use ($input) {
+	$query = $query->where('{{columnName}}', 'like', '%' . trim($input['q']) . '%');
+});

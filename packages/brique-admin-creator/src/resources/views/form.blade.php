@@ -43,7 +43,7 @@
 </div>
 <div class="accordion" id="accordionColumns">
 	<div class="accordion-item" v-for="(column, index) in columns">
-		<template v-if="['id', 'created_at', 'updated_at'].indexOf(column.name) < 0">
+		<template v-if="['id', 'created_at', 'updated_at', 'status', 'created_by'].indexOf(column.name) < 0">
 			<h2 class="accordion-header" :id="'heading'+index">
 				<div class="d-flex flex-row accordion-button p-0 pe-auto" :class="column.use_in_form?'selected_column':''">
 					<div class="py-4 px-2 flex-grow-1 fw-normal">

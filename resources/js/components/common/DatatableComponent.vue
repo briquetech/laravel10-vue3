@@ -276,8 +276,11 @@
 							<td :class="rowValue.class + ' ' + (dataprops.columns[index]?.align == 'center' ? 'text-center' : (dataprops.columns[index]?.align == 'right' ? 'text-end' : ''))">
 								<div v-if="dataprops.columns[index]?.date_type">
 									<div v-if="dataprops.columns[index]?.date_type == 'mysqldate'">
-										<span v-if="dataprops.columns[index]?.display_type == 'date' && dataprops.columns[index]?.format">{{ formatMySQLDate(rowValue.value, dataprops.columns[index]?.format) }}</span>
-										<span v-else>{{ rowValue.value }}</span>
+										<div v-if="rowValue.value && rowValue.value != '-'">
+											<span v-if="dataprops.columns[index]?.display_type == 'date' && dataprops.columns[index]?.format">{{ formatMySQLDate(rowValue.value, dataprops.columns[index]?.format) }}</span>
+											<span v-else>{{ rowValue.value }}</span>
+										</div>
+										<div v-else>Not specified</div>
 									</div>
 									<div v-if="dataprops.columns[index]?.date_type == 'timestamp'">
 										<span v-if="dataprops.columns[index]?.display_type == 'date' && dataprops.columns[index]?.format">{{ formatISODate(rowValue.value, dataprops.columns[index]?.format) }}</span>
@@ -287,12 +290,12 @@
 								<div v-else>{{rowValue.prefix }}{{ rowValue.value }}{{ rowValue.suffix }}</div>
 							</td>
 						</template>
-						<td class="text-center">
+						<td class="text-center" style="width: 1px; white-space: nowrap;padding-left: 20px;padding-right: 20px;" v-if="!dataprops.hide_status" >
 							<span class="badge rounded-pill bg-success" v-if="row.status == 1">ACTIVE</span>
 							<span class="badge rounded-pill bg-danger" v-if="row.status == 0">INACTIVE</span>
 							<span class="badge rounded-pill bg-secondary" v-if="row.status == -1">CANCELLED</span>
 						</td>
-						<td class="text-center">
+						<td class="text-center" style="width: 1px; white-space: nowrap;padding-left: 20px;padding-right: 20px;">
 							<div class="d-flex flex-row gap-2 justify-content-center">
 								<a class="btn btn-sm" :class="action.class" href="#" role="button" v-for="(action, key) of row.rowObject.actions" @click="$emit(action.action, row.rowObject, action.additional_params?.join(','))">{{ action.title }}</a>
 							</div>
@@ -466,10 +469,10 @@
 					this.showLoading("Loading ...");
 					axios.post(URL, postArr)
 						.then(function (response) {
-							thisElem.totalPages = response.data.last_page;
-							thisElem.totalRecords = response.data.total;
-							thisElem.currentFrom = response.data.from;
-							thisElem.currentTo = response.data.to;
+							thisElem.totalPages = response.data.meta.last_page;
+							thisElem.totalRecords = response.data.meta.total;
+							thisElem.currentFrom = response.data.meta.from;
+							thisElem.currentTo = response.data.meta.to;
 							thisElem.allRows = response.data.data.map((row) => {
 								let objToReturn = {
 									id: row.id,
@@ -517,8 +520,6 @@
 								objToReturn.status = row.status;
 								return objToReturn;
 							});
-							thisElem.totalPages = response.data.last_page;
-							thisElem.totalRecords = response.data.total;
 							thisElem.closeSwal();
 						})
 						.catch(function (error) {
@@ -627,13 +628,15 @@
 			for (let api of apis) {
 				this.getAPIData(api);
 			}
-			let statusAttribute = { title: 'STATUS', property: 'status', class: "text-center", type: 0, width: '10%' };
-			if (this.dataprops.hasOwnProperty("mode") && this.dataprops.mode == "card") {
-				statusAttribute.width = "2";
+			if (!this.dataprops.hasOwnProperty("hide_status") || this.dataprops.hide_status == false) {
+				let statusAttribute = { title: 'STATUS', property: 'status', class: "text-center", type: 0, width: '10%' };
+				if (this.dataprops.hasOwnProperty("mode") && this.dataprops.mode == "card") {
+					statusAttribute.width = "2";
+				}
+				else
+					statusAttribute.width = "10%";
+				this.dataprops.columns.push(statusAttribute);
 			}
-			else
-				statusAttribute.width = "10%";
-			this.dataprops.columns.push(statusAttribute);
         },
 		watch:{
 			'dataprops.reload': {

@@ -6,6 +6,21 @@ export default {
 	},
 	mounted() {},
 	methods: {
+		async loadAllRole(active) {
+			var URL = "/api/role/get";
+			let allRecords = [];
+			var postArr = {};
+			if (active) postArr["active"] = 1;
+			await axios
+				.post(URL, postArr)
+				.then(function (response) {
+					allRecords = response.data.data;
+				})
+				.catch(function (error) {
+					console.log(error);
+				});
+			return allRecords;
+		},
 		async loadAllUser(active) {
 			var URL = "/api/user/get";
 			let allUsers = [];
@@ -14,7 +29,7 @@ export default {
 			await axios
 				.post(URL, postArr)
 				.then(function (response) {
-					allUsers = response.data;
+					allUsers = response.data.data;
 				})
 				.catch(function (error) {
 					console.log(error);

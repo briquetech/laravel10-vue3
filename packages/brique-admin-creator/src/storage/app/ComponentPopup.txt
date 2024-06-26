@@ -6,7 +6,7 @@
 					<div class="col-sm-7">
 						<div class="d-flex align-items-center mb-2">
 							<h4 class="m-0 me-4">{{objectLabel-uppercase}}</h4>
-							<a id="add_{{objectName-lowercase}}_btn" class="btn btn-success btn-sm" href="#" role="button" data-bs-toggle="modal" data-bs-target="#add{{objectName}}Modal">ADD</a>
+							<a id="add_{{objectName-lowercase}}_btn" class="btn btn-success btn-sm" href="#" role="button" data-bs-toggle="modal" data-bs-target="#add{{objectName}}Modal" v-if="['110', '111'].indexOf(all_permissions) >= 0">ADD</a>
 						</div>
 					</div>
 				</div>
@@ -35,7 +35,7 @@ function initialStateValidations() {
 }
 export default {
 	name: "{{objectName}}master",
-	props: ['current_user_id'],
+	props: ['current_user_id', 'all_permissions'],
 	setup() {
 		return {
 			v$: useVuelidate()
@@ -71,6 +71,7 @@ export default {
 	methods: {
 		cancelAddEdit(event){
 			this.{{objectName-lowercase}}ForAdd = initialState();
+			this.v$.$reset();
 		},
 		async save{{objectName}}(event){
 			var thisVar = this;
@@ -82,6 +83,7 @@ export default {
 			}
 			if( !thisVar.{{objectName-lowercase}}ForAdd.action || thisVar.{{objectName-lowercase}}ForAdd.action == "" )
 				thisVar.{{objectName-lowercase}}ForAdd.action = "details";
+			thisVar.{{objectName-lowercase}}ForAdd.created_by = thisVar.current_user_id;
 			$("#add{{objectName}}Modal").modal('hide');
 			this.showLoading("Saving ...");
 			axios.post('/{{objectName-lowercase}}/save', { {{objectName-lowercase}}: thisVar.{{objectName-lowercase}}ForAdd }).then(async function (response) {
@@ -94,6 +96,7 @@ export default {
 						thisVar.dataprops.reload = true;
 					}, 1500);
 					thisVar.{{objectName-lowercase}}ForAdd = initialState();
+					thisVar.v$.$reset();
 					{{reloadMasters}}
 				}
 				else

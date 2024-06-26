@@ -264,7 +264,7 @@ class ComponentService{
 			$requiredError = "";
 			if( $fillableColumn['required'] ){
 				$required = ' <span class="mandatory">*</span>';
-				$requiredError = ' <span v-if="v$.{{objectName-lowercase}}ForAdd.'.$fillableColumn["name"].'.$error" class="mandatory ms-3">Mandatory</span>';
+				$requiredError = ' <div v-if="v$.{{objectName-lowercase}}ForAdd.'.$fillableColumn["name"].'.$error" class="mandatory ms-3">Mandatory</div>';
 			}
 			$allAddEditColumns = str_replace('{{columnRequired}}', $required, $allAddEditColumns);
 			$allAddEditColumns = str_replace('{{columnRequiredError}}', $requiredError, $allAddEditColumns);
