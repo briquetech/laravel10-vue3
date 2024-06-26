@@ -39,10 +39,24 @@ class DatabaseSeeder extends Seeder
 		]);
 
 		\App\Models\PlatformObject::create([
-			'title' => 'User'
+			'title' => 'Users',
+			'name' => 'User',
+			'url' => '/user/',
+			'phicon' => 'users',
+			'hierarchical' => true,
+			'for_admin_only' => true,
+			'category' => 2,
+			'created_by' => 1,
 		]);
 		\App\Models\PlatformObject::create([
-			'title' => 'Role'
+			'title' => 'Role',
+			'name' => 'Role',
+			'url' => '/role/',
+			'phicon' => 'eyeglasses',
+			'hierarchical' => false,
+			'for_admin_only' => true,
+			'category' => 10,
+			'created_by' => 1,
 		]);
 
 		DB::table('role_object_mapping')->insert([
