@@ -100,7 +100,6 @@ class ModelService{
 				$requiredColumnsCondition .= '|file';
 			$requiredColumnsCondition .= "',\n";
 		}
-		// log::info($simpleSearchColumns);
 		$controllerContents = str_replace('{{simpleSearchColumns}}', $simpleSearchColumns, $controllerContents);
 		$controllerContents = str_replace('{{advancedSearchColumns-match}}', $advancedSearchColumnsMatch, $controllerContents);
 		$controllerContents = str_replace('{{advancedSearchColumns-like}}', $advancedSearchColumnsLike, $controllerContents);

@@ -280,6 +280,7 @@ ROUTE;
 				"title" => $jsonObject["object_label"],
 				"name" => $jsonObject["object_label"],
 				"url" => "/".strtolower($jsonObject["object_name"]),
+				"phicon" => "ph-app-window",
 				"status" => true,
 				"created_by" => 1
 			]);

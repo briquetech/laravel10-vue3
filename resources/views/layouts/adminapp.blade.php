@@ -52,17 +52,28 @@
 								</li>
 							@endif
 						@else
+							<li>
+								<a href="#" class="nav-link text-light" role="button" data-bs-toggle="offcanvas" data-bs-target="#remindersBackdrop" aria-controls="remindersBackdrop">Reminders</a>
+							</li>
 							<li class="nav-item dropdown">
 								<a id="navbarDropdown" class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
 									{{ Auth::user()->name }}
 								</a>
 
 								<div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-									<a class="dropdown-item" href="{{ route('creator') }}" >Creator</a>
-									<a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">{{ __('Logout') }}</a>
-									<form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-										@csrf
-									</form>
+									@if( auth()->user()->role_id == 1 )
+										<a class="dropdown-item" href="{{ route('creator') }}" >Creator</a>
+									@endif
+									<a class="dropdown-item" href="{{ route('user-profile') }}" >My Profile</a>
+									@if( auth()->user()->role_id == 1 )
+										<a class="dropdown-item" href="{{ route('settings-list') }}" >Settings</a>
+									@endif
+                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">{{ __('Logout') }}</a>
+
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                        @csrf
+                                    </form>
 								</div>
 							</li>
 						@endguest
@@ -93,6 +104,15 @@
 					<button type="button" class="btn btn-outline-dark btn-sm" data-bs-dismiss="modal">Close</button>
 				</div>
 			</div>
+		</div>
+	</div>
+	<div class="offcanvas offcanvas-start" data-bs-backdrop="static" tabindex="-1" id="remindersBackdrop" aria-labelledby="remindersBackdropLabel">
+		<div class="offcanvas-header">
+			<h5 class="offcanvas-title" id="remindersBackdropLabel">Reminders</h5>
+			<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+		</div>
+		<div class="offcanvas-body">
+			<div>I will not close if you click outside of me.</div>
 		</div>
 	</div>
 	<script>

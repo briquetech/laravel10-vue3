@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
 			$table->integer('role_id');
 			$table->integer('platform_object_id');
+			$table->integer('view_records')->default(2)->comment("1=all employee records,2=own hierarchy");
+			$table->boolean('can_add_edit');
+			$table->boolean('can_delete');
         });
     }
 

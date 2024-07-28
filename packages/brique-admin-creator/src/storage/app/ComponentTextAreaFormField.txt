@@ -1,2 +1,1 @@
 <textarea class="form-control" v-model="{{objectName-lowercase}}ForAdd.{{columnName}}" id="add_{{objectName-lowercase}}_{{columnName}}" placeholder="{{columnHint}}"></textarea>
-<small>Allowed characters are A-Z, 0-9 and space, comma, full stop, underscore, dash and single quote.</small>

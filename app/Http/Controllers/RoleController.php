@@ -1,11 +1,13 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\PlatformObject;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -15,12 +17,30 @@ class RoleController extends Controller{
 	public function index(){
 		$component = 'role-component';
 		$current_user_id = auth()->id();
-		return view('common.index', compact('component', 'current_user_id'));
+		if( auth()->user()->role_id == 1 ){
+			$all_permissions = "111";
+		}
+		else{
+			// Common code for authorization
+			$platformObject = PlatformObject::where('name', 'Role')->first();
+			$permissions = DB::table('role_object_mapping')
+				->where('role_id', auth()->user()->role_id)
+				->where('platform_object_id', $platformObject->id)
+				->first();
+			$all_permissions = "1";
+			if( $permissions !== null ){
+				$all_permissions .= ($permissions->can_add_edit ? "1": "0");
+				$all_permissions .= ($permissions->can_delete ? "1": "0");
+			}
+			else
+				abort(403);
+		}
+		return view('common.index', compact('component', 'current_user_id', 'all_permissions'));
 	}
 
 	public function get(Request $request){
 		$input = $request->all();
-		$roleList = \App\Models\Role::select("*");
+		$roleList = \App\Models\Role::with("objects")->select("*");
 		// SIMPLE & ADVANCED SEARCH ClAUSE
 		$searchType = "simple";
 		if( isset($input["search"]) )
@@ -112,15 +132,19 @@ class RoleController extends Controller{
 			else
 				$roleList = $roleList->get();
 		}
-		$roleList->append(['actions']);
 		return \App\Http\Resources\RoleResource::collection($roleList);
-		return $roleList->toJson();
 	}
 
 	public function getPermittedObjects(Request $request){
 		$input = $request->all();
 		if( isset($input["role_id"]) ){
-			$permittedObjects = Role::find($input["role_id"])->objects()->get()->pluck('title');
+			$permittedObjects = [];
+			if( $input["role_id"] == 1 ){
+				$permittedObjects = PlatformObject::get();
+			}
+			else{
+				$permittedObjects = Role::find($input["role_id"])->objects()->get();
+			}
 			return response()->json(["status" => 1, "permitted_objects" => $permittedObjects]);
 		}
 		else
@@ -138,11 +162,11 @@ class RoleController extends Controller{
 				$objectToSave["status"] = $role["status"];
 				if( $role["status"] <= 0 )
 					$checkTitle = false;
+				\App\Models\Role::updateOrCreate( [ "id" => $role["id"] ], $objectToSave );
 			}
-			if( $role["action"] == "details" ){
+			else if( $role["action"] == "details" ){
 				$rules = [
 					'title' => 'required|string',
-
 				];
 				$validator = Validator::make($role, $rules);
 				if ($validator->fails()) {
@@ -153,8 +177,32 @@ class RoleController extends Controller{
 					$objectToSave["created_by"] = Auth::id();
 								if( $checkTitle && \App\Models\Role::where('title', $role["title"])->where( "id", "!=", $role["id"] )->where('status', 1)->count() > 0 )
 					return response()->json(["status" => -1, "messages" => ["Title has to be unique."]]);
+				\App\Models\Role::updateOrCreate( [ "id" => $role["id"] ], $objectToSave );
 			}
-			\App\Models\Role::updateOrCreate( [ "id" => $role["id"] ], $objectToSave );
+			else if( $role["action"] == "map-objects" ){
+				if( $role["mappedObjects"] != null && count($role["mappedObjects"]) > 0 ){
+					foreach ($role["mappedObjects"] as $mappedObject) {
+						if( $mappedObject["selected"] == true ){
+							// Insert
+							DB::table('role_object_mapping')->updateOrInsert(
+								[ "id" => $mappedObject["mapping_id"] ],
+								[
+									"role_id" => $role["id"],
+									"platform_object_id" => $mappedObject["id"],
+									"view_records" => $mappedObject["view_records"],
+									"can_add_edit" => $mappedObject["can_add_edit"],
+									"can_delete" => $mappedObject["can_delete"],
+								]);
+						}
+						else{
+							// Delete if unmapped 
+							if( $mappedObject["mapping_id"] > 0 ){
+								DB::table('role_object_mapping')->where("id", $mappedObject["mapping_id"])->delete();
+							} 
+						}
+					}
+				}
+			}
 			return response()->json(["status" => 1]);
 		}
 		else{

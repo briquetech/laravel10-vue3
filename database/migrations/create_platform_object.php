@@ -19,7 +19,7 @@ return new class extends Migration
 			$table->string("phicon");
 			$table->boolean("for_admin_only")->default(false);
 			$table->boolean("hierarchical")->default(false);
-			$table->integer("category")->default(1)->comment("1=Actions,2=others,3=Information,5=masters");
+			$table->integer("category")->default(1)->comment("1=Actions, 3=Information, 4=others, 11=Masters, 13=other masters");
 			$table->boolean("status")->default(true);
 			$table->integer("created_by");
 			$table->timestamps();

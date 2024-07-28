@@ -77,16 +77,16 @@ export default {
 			var thisVar = this;
 			const result = await this.v$.$validate();
 			if (!result) {
-				thisVar.showToast("Form validation failed. Please check.", "error", "bottom", 2000);
-				console.log(thisVar.v$.$errors);
+				this.showToast("Form validation failed. Please check.", "error", "bottom", 2000);
+				console.log(this.v$.$errors);
 				return;
 			}
-			if( !thisVar.{{objectName-lowercase}}ForAdd.action || thisVar.{{objectName-lowercase}}ForAdd.action == "" )
-				thisVar.{{objectName-lowercase}}ForAdd.action = "details";
-			thisVar.{{objectName-lowercase}}ForAdd.created_by = thisVar.current_user_id;
+			if( !this.{{objectName-lowercase}}ForAdd.action || this.{{objectName-lowercase}}ForAdd.action == "" )
+				this.{{objectName-lowercase}}ForAdd.action = "details";
+			this.{{objectName-lowercase}}ForAdd.created_by = this.current_user_id;
 			$("#add{{objectName}}Modal").modal('hide');
 			this.showLoading("Saving ...");
-			axios.post('/{{objectName-lowercase}}/save', { {{objectName-lowercase}}: thisVar.{{objectName-lowercase}}ForAdd }).then(async function (response) {
+			axios.post('/{{objectName-lowercase}}/save', { {{objectName-lowercase}}: this.{{objectName-lowercase}}ForAdd }).then(async function (response) {
 				thisVar.closeSwal();
 				var status = response.data.status;
 				if( status == 1 ){
@@ -110,10 +110,6 @@ export default {
 		},
 		prepareEdit{{objectName}}({{objectName-lowercase}}){
 			this.{{objectName-lowercase}}ForAdd = Object.assign({}, {{objectName-lowercase}});
-			if( this.{{objectName-lowercase}}ForAdd.is_percentage == 1 )
-				this.{{objectName-lowercase}}ForAdd.is_percentage = true;
-			else
-				this.{{objectName-lowercase}}ForAdd.is_percentage = false;
 			this.addEditModal.show();
 		},
 		view{{objectName}}({{objectName-lowercase}}){

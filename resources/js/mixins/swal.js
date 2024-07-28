@@ -26,7 +26,7 @@ export default {
 				color: color, 
                 showConfirmButton: false,
                 timer: timer,
-                timerProgressBar: true,
+                // timerProgressBar: true,
             });
 		},
 		showErrors(toastText, messages, position, timer) {
@@ -57,6 +57,8 @@ export default {
                     text +
                     "</h2>",
                 showConfirmButton: false,
+				allowOutsideClick: false,
+				allowEscapeKey: false,
             });
         },
         // showConfirm(confirmText) {
@@ -81,6 +83,8 @@ export default {
                     confirmButton: "btn",
                     cancelButton: "btn",
                 },
+				allowOutsideClick: false,
+				allowEscapeKey: false,
             });
         },
         closeSwal() {
