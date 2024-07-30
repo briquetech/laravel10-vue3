@@ -17,7 +17,7 @@ class User extends Authenticatable
 	 *
 	 * @var array<int, string>
 	 */
-	protected $fillable = [ 'name', 'email', 'password', 'department_id', 'date_of_joining', 'employee_code', 'reporting_to', 'hierarchy_node_id', 'role_id', 'designation_id',  'available_leaves', 'status', 'created_by' ];
+	protected $fillable = [ 'name', 'email', 'password', 'department_id', 'date_of_joining', 'employee_code', 'hierarchy_node_id', 'role_id',  'available_leaves', 'status', 'created_by' ];
 
 	/**
 	 * The attributes that should be hidden for serialization.
@@ -35,10 +35,6 @@ class User extends Authenticatable
 		'email_verified_at' => 'datetime',
 	];
 
-	public function reporting_to_user(){
-		return $this->belongsTo('App\Models\User', 'reporting_to', 'id')->withDefault("No one");
-	}
-
 	public function role(){
 		return $this->belongsTo('App\Models\Role', 'role_id', 'id');
 	}
@@ -46,9 +42,4 @@ class User extends Authenticatable
 	public function department(){
 		return $this->belongsTo('App\Models\Department', 'department_id', 'id');
 	}
-
-	public function designation(){
-		return $this->belongsTo('App\Models\Designation', 'designation_id', 'id');
-	}
-	
 }

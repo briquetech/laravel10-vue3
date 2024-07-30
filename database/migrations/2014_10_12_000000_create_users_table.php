@@ -20,10 +20,8 @@ return new class extends Migration
 			$table->date('date_of_joining');
 			$table->integer('department_id')->default(0);
 			$table->string('employee_code');
-			$table->integer('reporting_to')->default(0);
 			$table->string('hierarchy_node_id')->nullable();
 			$table->integer('role_id')->default(0);
-			$table->integer('designation_id')->default(0);
 			$table->boolean('status')->default(true);
 			$table->integer("created_by");
 			$table->rememberToken();

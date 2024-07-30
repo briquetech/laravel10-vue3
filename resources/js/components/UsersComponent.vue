@@ -23,7 +23,7 @@
 					<div class="modal-body">
 						<div class='row mb-4'>
 <div class="col-4">
-	<label for="add_users_name" class="form-label text-uppercase fw-bold me-3">Name <span class="mandatory">*</span></label><a href="#" class="cstooltip" data-tooltip="Allowed characters are A-Z, 0-9 and space, comma, full stop, underscore, dash and single quote." tabindex="-1"><i class="ph ph-question"></i></a> <span v-if="v$.usersForAdd.name.$error" class="mandatory ms-3">Mandatory</span>
+	<label for="add_users_name" class="form-label text-uppercase fw-bold me-3">Namess <span class="mandatory">*</span></label><a href="#" class="cstooltip" data-tooltip="Allowed characters are A-Z, 0-9 and space, comma, full stop, underscore, dash and single quote." tabindex="-1"><i class="ph ph-question"></i></a> <span v-if="v$.usersForAdd.name.$error" class="mandatory ms-3">Mandatory</span>
 	<div>
 		<input type="text" class="form-control"  v-model="usersForAdd.name" id="add_users_name" placeholder="Enter Name">
 	</div>

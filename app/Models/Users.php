@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Users extends Model{
     protected $table = "users";
-    protected $fillable = ['name', 'email', 'password', 'department', 'employee_code', 'reporting_to', 'status'];
+    protected $fillable = ['name', 'email', 'password', 'department', 'employee_code', 'status'];
     public $timestamps = true;
 	
 	protected $casts = [

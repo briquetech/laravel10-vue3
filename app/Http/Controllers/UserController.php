@@ -21,41 +21,30 @@ class UserController extends Controller
 	{
 		$component = 'user-component';
 		$current_user_id = auth()->id();
-		$maxNoOfUsers = SettingsService::getSettingValue("license_users");
-		if( User::count() >= $maxNoOfUsers+1 ){
-			if( auth()->user()->role_id == 1 ){
-				$all_permissions = "111";
-			}
-			else
-				$all_permissions = "100";
+		if( auth()->user()->role_id == 1 ){
+			$all_permissions = "111";
 		}
 		else{
-			if( auth()->user()->role_id == 1 ){
-				$all_permissions = "111";
+			// Common code for authorization
+			$platformObject = PlatformObject::where('name', 'User')->first();
+			$permissions = DB::table('role_object_mapping')
+				->where('role_id', auth()->user()->role_id)
+				->where('platform_object_id', $platformObject->id)
+				->first();
+			$all_permissions = "1";
+			if( $permissions !== null ){
+				$all_permissions .= ($permissions->can_add_edit ? "1": "0");
+				$all_permissions .= ($permissions->can_delete ? "1": "0");
 			}
-			else{
-				// Common code for authorization
-				$platformObject = PlatformObject::where('name', 'User')->first();
-				$permissions = DB::table('role_object_mapping')
-					->where('role_id', auth()->user()->role_id)
-					->where('platform_object_id', $platformObject->id)
-					->first();
-				$all_permissions = "1";
-				if( $permissions !== null ){
-					$all_permissions .= ($permissions->can_add_edit ? "1": "0");
-					$all_permissions .= ($permissions->can_delete ? "1": "0");
-				}
-				else
-					abort(403);
-			}
+			else
+				abort(403);
 		}
-		$param1 = $maxNoOfUsers;
-		return view('common.index', compact('component', 'current_user_id', 'all_permissions', 'param1'));
+		return view('common.index', compact('component', 'current_user_id', 'all_permissions'));
 	}
 
 	public function get(Request $request){
 		$input = $request->all();
-		$userList = \App\Models\User::with('reporting_to_user', 'role', 'department', 'designation')->select("*");
+		$userList = \App\Models\User::with('role', 'department')->select("*");
 		// SIMPLE & ADVANCED SEARCH ClAUSE
 		$searchType = "simple";
 		if (isset($input["search"]))
@@ -66,7 +55,7 @@ class UserController extends Controller
 					$query = $query->where('name', 'like', '%' . trim($input['q']) . '%')
 						->orWhere('department', 'like', '%' . trim($input['q']) . '%')
 						->orWhere('employee_code', 'like', '%' . trim($input['q']) . '%')
-						->orWhere('reporting_to', 'like', '%' . trim($input['q']) . '%')->orWhere('role_id', 'like', '%' . trim($input['q']) . '%');
+						->orWhere('role_id', 'like', '%' . trim($input['q']) . '%');
 				});
 			}
 		} else {
@@ -80,7 +69,7 @@ class UserController extends Controller
 									$query = $query->where('name', trim($filter['search_for_value']))
 										->orWhere('department', trim($filter['search_for_value']))
 										->orWhere('employee_code', trim($filter['search_for_value']))
-										->orWhere('reporting_to', trim($filter['search_for_value']))->orWhere('role_id', trim($filter['search_for_value']));
+										->orWhere('role_id', trim($filter['search_for_value']));
 								});
 								break;
 							case 1: // EQUALS
@@ -88,7 +77,7 @@ class UserController extends Controller
 									$query = $query->where('name', trim($filter['search_for_value']))
 										->orWhere('department', trim($filter['search_for_value']))
 										->orWhere('employee_code', trim($filter['search_for_value']))
-										->orWhere('reporting_to', trim($filter['search_for_value']))->orWhere('role_id', trim($filter['search_for_value']));
+										->orWhere('role_id', trim($filter['search_for_value']));
 								});
 								break;
 							case 22: // CONTAINS
@@ -96,7 +85,7 @@ class UserController extends Controller
 									$query = $query->where('name', 'like', '%' . trim($filter['search_for_value']) . '%')
 										->orWhere('department', 'like', '%' . trim($filter['search_for_value']) . '%')
 										->orWhere('employee_code', 'like', '%' . trim($filter['search_for_value']) . '%')
-										->orWhere('reporting_to', 'like', '%' . trim($filter['search_for_value']) . '%')->orWhere('role_id', 'like', '%' . trim($filter['search_for_value']) . '%');
+										->orWhere('role_id', 'like', '%' . trim($filter['search_for_value']) . '%');
 								});
 								break;
 						}
@@ -141,14 +130,6 @@ class UserController extends Controller
 					->where("role_object_mapping.role_id", $currentUser->role_id)
 					->where("platform_object.name", "User")
 					->first();
-				if( $permissions != null && $permissions->view_records == 2 ){
-					// Only view people in your own hierarchy
-					$allReportees = [ $input['current_user_id'] ];
-					foreach (UserService::getNestedReportees($currentUser->id) as $reportee) {
-						$allReportees[] = $reportee->id;
-					}
-					$userList = $userList->whereIn("id", $allReportees);
-				}
 			}
 		}
 
@@ -195,15 +176,15 @@ class UserController extends Controller
 		return $userList->toJson();
 	}
 
-	public function getUserReportees(Request $request){
-		$input = $request->all();
-		if (isset($input["user_id"]) ){
-			$allReportees = UserService::getNestedReportees($input["user_id"]);
-			return response()->json([ "status" => 1, "reportees" => $allReportees ]);
-		}
-		else
-			return response()->json(["status" => -1 ]);
-	}
+	// public function getUserReportees(Request $request){
+	// 	$input = $request->all();
+	// 	if (isset($input["user_id"]) ){
+	// 		$allReportees = UserService::getNestedReportees($input["user_id"]);
+	// 		return response()->json([ "status" => 1, "reportees" => $allReportees ]);
+	// 	}
+	// 	else
+	// 		return response()->json(["status" => -1 ]);
+	// }
 
 	// Save user
 	public function save(Request $request)
@@ -223,21 +204,19 @@ class UserController extends Controller
 					'name' => 'required|string',
 					'email' => 'required|email:filter',
 					'department_id' => 'required',
-					'designation_id' => 'required',
 					'employee_code' => 'required|string',
-					'reporting_to' => 'required',
 					'role_id' => 'required',
 				];
 				$validator = Validator::make($user, $rules);
 				if ($validator->fails()) {
 					return response()->json(["status" => -1, "messages" => array_merge(...array_values($validator->errors()->toArray()))]);
 				}
-				if( $user['id'] == 0 ){
-					$maxNoOfUsers = SettingsService::getSettingValue("license_users");
-					if( User::count() >= $maxNoOfUsers+1 ){
-						return response()->json(["status" => -1, "messages" => ["Your license supports adding ".$maxNoOfUsers." only. Please connect with brique.solutions@gmail.com."]]);
-					}
-				}
+				// if( $user['id'] == 0 ){
+				// 	$maxNoOfUsers = SettingsService::getSettingValue("license_users");
+				// 	if( User::count() >= $maxNoOfUsers+1 ){
+				// 		return response()->json(["status" => -1, "messages" => ["Your license supports adding ".$maxNoOfUsers." only. Please connect with brique.solutions@gmail.com."]]);
+				// 	}
+				// }
 				$objectToSave = $user;
 				if (!isset($objectToSave["created_by"]))
 					$objectToSave["created_by"] = Auth::id();
@@ -264,16 +243,9 @@ class UserController extends Controller
 				$oldHierarchyNodeId = $newUser->hierarchy_node_id;
 				// Update the user's hierarchy node id
 				$hierarchyNodeId = "";
-				if( $newUser->reporting_to > 0 ){
-					$hierarchyNodeId = User::find($newUser->reporting_to)->hierarchy_node_id;
-				}
 				$newUser->hierarchy_node_id = $hierarchyNodeId.$newUser->id.".";
 				$newUser->save();
-				if( $user["id"] == 0 ){
-					// Send
-					MailService::notifyNewUserRegistration($newUser->email, $newUser->name, $newUser->email, $user['password']);
-				}
-				else{
+				if( $user["id"] != 0 ){
 					// check all the reportees of this user and update their hierarchy node ids
 					$reportees = User::where('hierarchy_node_id', 'LIKE', $oldHierarchyNodeId.'%')->get();
 					foreach ($reportees as $reportee) {

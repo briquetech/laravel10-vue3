@@ -85,48 +85,8 @@
 									{{ userForAdd.department }}
 								</div>
 							</div>
-							<div class="col-4">
-								<label for="add_user_designation"
-									class="form-label text-uppercase fw-bold me-3">Designation <span
-										class="mandatory">*</span></label><a href="#" class="cstooltip"
-									data-tooltip="Allowed characters are A-Z, 0-9 and space, comma, full stop, underscore, dash and single quote."
-									tabindex="-1"><i class="ph ph-question"></i></a>
-								<div v-if="['110', '111'].indexOf(all_permissions) >= 0">
-									<select class="form-select" v-model="userForAdd.designation_id" id="add_designation_id">
-										<optgroup v-if="allDesignationList" label="Choose Department">
-											<template v-for="designation in allDesignationList" :key="designation.id">
-												<option :value="designation.id">{{ designation.title }}</option>
-											</template>
-										</optgroup>
-									</select>
-									<div v-if="v$.userForAdd.designation_id.$error" class="mandatory my-2">Mandatory</div>
-								</div>
-								<div class="py-2" v-else>
-									{{ userForAdd.designation }}
-								</div>
-							</div>
 						</div>
 						<div class='row mb-4'>
-							<div class="col-4">
-								<label for="add_user_reporting_to"
-									class="form-label text-uppercase fw-bold me-3">Reporting To <span
-										class="mandatory">*</span></label>
-								<div v-if="['110', '111'].indexOf(all_permissions) >= 0">
-									<select class="form-select" v-model="userForAdd.reporting_to" id="add_reporting_to">
-										<option value="0" v-if="currentUser.role_id == 1">None</option>
-										<option value="0" v-else>Me</option>
-										<optgroup v-if="allReportingToList" label="Choose Reporting To">
-											<template v-for="reportingTo in allReportingToList" :key="reportingTo.id">
-												<option :value="reportingTo.id">{{ reportingTo.name }}</option>
-											</template>
-										</optgroup>
-									</select>
-									<div v-if="v$.userForAdd.reporting_to.$error" class="mandatory my-2">Mandatory</div>
-								</div>
-								<div class="py-2" v-else>
-									{{ userForAdd.reporting_to_user?.name }}
-								</div>
-							</div>
 							<div class="col-4">
 								<label for="add_user_role_id" class="form-label text-uppercase fw-bold me-3">Role
 									<span class="mandatory">*</span></label> 
@@ -218,13 +178,6 @@
 									<span v-else><i>Not specified</i></span>
 								</div>
 							</div>
-							<div class="col-4">
-								<label class="form-label text-uppercase fw-bold m-0">Designation</label>
-								<div>
-									<span v-if='readUser.designation?.title'>{{ readUser.designation?.title }}</span>
-									<span v-else><i>Not specified</i></span>
-								</div>
-							</div>
 						</div>
 						<div class='row mb-4'>
 							<div class="col-4">
@@ -233,14 +186,6 @@
 									<span v-if='readUser.employee_code'>{{ readUser.employee_code }}</span><span
 										v-else><i>Not
 											specified</i></span>
-								</div>
-							</div>
-							<div class="col-4">
-								<label class="form-label text-uppercase fw-bold m-0">Reporting To</label>
-								<div>
-									<span v-if='readUser.reporting_to_user?.name'>{{ readUser.reporting_to_user?.name
-										}}</span><span
-										v-else><i>Not specified</i></span>
 								</div>
 							</div>
 							<div class="col-4">
@@ -287,7 +232,6 @@ function initialState() {
 		date_of_joining: null,
 		department: '',
 		employee_code: '',
-		reporting_to: 0,
 		role_id: null,
 		action: ""
 	};
@@ -299,9 +243,7 @@ function initialStateValidations() {
 		password: { minLengthValue: minLength(3) },
 		date_of_joining: { required },
 		department_id: { required },
-		designation_id: { required },
 		employee_code: { required, minLengthValue: minLength(1) },
-		reporting_to: { required, },
 		role_id: { required, },
 	}
 }
@@ -323,7 +265,6 @@ export default {
 					{ title: 'Name', property: 'name', },
 					{ title: 'Email', property: 'email', },
 					{ title: 'Employee Code', property: 'employee_code', },
-					{ title: 'Reporting To', property: 'reporting_to_user.name', alt_value: 'No One', },
 					{ title: 'Role', property: 'role.title', alt_value: 'Not Specified', },
 				],
 				data_to_send: { current_user_id: this.current_user_id },
@@ -338,7 +279,6 @@ export default {
 			allReportingToList: [],
 			allRoleIdList: [],
 			allDepartmentList: [],
-			allDesignationList: [],
 		}
 	},
 	validations() {
