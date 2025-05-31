@@ -1,0 +1,8 @@
+    public function view($id){
+        $component = "view-{{objectName-lowercase}}-component";
+        $objectId = $id;
+        if( \App\Models\{{objectName}}::find($objectId) == null ){
+            $component = "object-not-found";
+        }
+        return view('common.index', compact("component", "objectId"));
+    }

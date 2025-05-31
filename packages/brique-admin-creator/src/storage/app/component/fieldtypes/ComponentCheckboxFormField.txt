@@ -1,0 +1,10 @@
+<div class="col">
+	<label for="add_{{objectName-lowercase}}_{{columnName}}" class="form-label text-uppercase fw-bold me-3">{{columnLabel}}{{columnRequired}}</label>{{columnHelp}}
+	<div>
+		<div class="form-check">
+			<input class="form-check-input" type="checkbox" name="add_{{objectName-lowercase}}_{{columnName}}" id="add_{{objectName-lowercase}}_{{columnName}}" v-model="{{objectName-lowercase}}FormObj.{{columnName}}" true-value="1" false-value="0">
+			<label class="form-check-label" for="add_{{objectName-lowercase}}_{{columnName}}">{{columnLabel}}</label>
+		</div>
+	</div>
+	{{columnRequiredError}}
+</div>

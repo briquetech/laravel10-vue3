@@ -1,0 +1,7 @@
+<div class="col">
+	<label for="add_{{objectName-lowercase}}_{{columnName}}" class="form-label text-uppercase fw-bold me-3">{{columnLabel}}{{columnRequired}}</label>{{columnHelp}}
+	<div>
+        <textarea class="form-control" v-model="{{objectName-lowercase}}FormObj.{{columnName}}" rows="{{no_of_rows}}" id="add_{{objectName-lowercase}}_{{columnName}}" placeholder="{{columnHint}}"></textarea>
+	</div>
+	{{columnRequiredError}}
+</div>

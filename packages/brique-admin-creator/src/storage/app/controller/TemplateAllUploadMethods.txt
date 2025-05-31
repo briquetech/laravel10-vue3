@@ -1,0 +1,72 @@
+    // Handle uploads
+	public function uploadFile(Request $request){
+		$input = $request->all();
+		if( isset($input["{{objectName-lowercase}}_id"]) && $input["{{objectName-lowercase}}_id"] > 0 ){
+			${{objectName-lowercase}} = \App\Models\{{objectName}}::find($input["{{objectName-lowercase}}_id"]);
+			// Clear the image first
+			{{uploadFileClearImagesPart}}
+		}
+		else
+			return response()->json(["status" => -1]);
+	}
+
+	public function viewFile($id, $fieldName, $size, $randomId){
+		${{objectName-lowercase}} = \App\Models\{{objectName}}::find($id);
+		if( ${{objectName-lowercase}} ){
+			$files = ${{objectName-lowercase}}->$fieldName;
+			if ($files) {
+				$filePaths = json_decode($files, true);;
+				if (is_array($filePaths) && count($filePaths) > 0){
+					$filePath = $filePaths[$size] ?? $filePaths['_o']; // fallback to '_o' size if request size is not available
+					if (strlen($filePath) > 0 && Storage::exists('public/' . $filePath)) {
+						$mimeType = Storage::mimeType('public/' . $filePath);
+						Log::info($mimeType);
+						if (strpos($mimeType, 'image') !== false) {
+							return response()->file(Storage::path('public/' . $filePath), ['Content-Type' => $mimeType]);
+						} else if ($mimeType == 'application/pdf') {
+							return response()->file(public_path('imgs/pdf.svg'), ['Content-Type' => 'image/svg+xml']);
+						}
+					}
+				}
+			}
+		}
+		else 
+		// send default thumbnail contents
+			return response()->json(["file" => $filePaths]);
+	}
+
+	public function clearUpload($filePath){
+		if( strlen($filePath) > 0 && Storage::exists('public/'.$filePath) ){
+			Storage::delete('public/'.$filePath);
+		}
+		return true;
+	}
+
+	public function clearFile(Request $request, $id, $randomId){
+		$fieldName = $request->input('fieldName');
+		${{objectName-lowercase}} = \App\Models\{{objectName}}::find($id);
+		if( ${{objectName-lowercase}} ){
+			$files = ${{objectName-lowercase}}->$fieldName;
+			if ($files) {
+				$filePaths = array_values(get_object_vars(json_decode($files)));
+				$deleteCounter = 0;
+				if (is_array($filePaths) && count($filePaths) > 0) {
+					foreach ($filePaths as $filePath) {
+						$this->clearUpload($filePath);
+						$deleteCounter++;
+					}
+				}
+				if( $deleteCounter > 0 ){
+					${{objectName-lowercase}}->$fieldName = null;
+				}
+				${{objectName-lowercase}}->save();
+				return response()->json(["status" => 1]);
+			}
+			else{
+				return response()->json(["status" => -1, 'message'=> 'File does not exists.']);
+			}
+		}
+		else{
+			return response()->json(["status" => -1, 'message'=> 'File does not exists.']);
+		}
+	}

@@ -1,0 +1,6 @@
+                        {
+							title: "{{columnLabel-uppercase}}",
+							property: "{{columnName}}",
+							type: "{{columnType}}",
+							{{sourceEnum}}{{masterDetails}}
+						},

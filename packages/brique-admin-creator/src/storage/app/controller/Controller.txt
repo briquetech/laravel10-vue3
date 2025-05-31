@@ -1,0 +1,224 @@
+<?php
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
+use App\Models\PlatformObject;
+use App\Services\ActionsService;
+use Intervention\Image\Laravel\Facades\Image;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use App\Models\{{objectName}};
+use App\Events\{{objectName}}Saved;
+
+class {{objectName}}Controller extends Controller{
+
+	//
+	public function index(){
+		$component = '{{objectName-lowercase}}-component';
+
+		$all_permissions = ActionsService::getPermissions("{{objectName}}", auth()->user()->role_id);
+		if( $all_permissions == null )
+			abort(403);
+
+		$current_user_id = auth()->id();
+		return view('common.index', compact('component', 'current_user_id', 'all_permissions'));
+	}
+
+	public function get(Request $request){
+		$input = $request->all();
+		${{objectName-lowercase}}List = \App\Models\{{objectName}}::{{withClause}}select("*");
+		if( isset($input['advfilters']) && is_array($input['advfilters']) && count($input['advfilters']) > 0 ){
+			foreach($input['advfilters'] as $filter){
+				if( $filter['property'] == "__q" ){
+					switch($filter['condition']){
+						case 0: // NOT EQUALS
+							${{objectName-lowercase}}List = ${{objectName-lowercase}}List{{advancedSearchColumns-notmatch}};
+							break;
+						case 1: // EQUALS
+							${{objectName-lowercase}}List = ${{objectName-lowercase}}List->where(function($query) use ($filter) {
+								$query = $query->{{advancedSearchColumns-match}};
+							});
+							break;
+						case 22: // CONTAINS
+							${{objectName-lowercase}}List = ${{objectName-lowercase}}List->where(function($query) use ($filter) {
+								$query = $query->{{advancedSearchColumns-like}};
+							});
+							break;
+						case 23: // DOES NOT CONTAIN
+							${{objectName-lowercase}}List = ${{objectName-lowercase}}List{{advancedSearchColumns-notlike}};
+							break;						
+					}
+				} 
+				else{
+					$condition = '=';
+					$searchType = 'direct';
+					switch ($filter['condition']) {
+						case 0:
+							if($filter['type'] == 'master'){
+								$searchType = 'master';
+							}
+							$condition = "!=";
+							break;
+						case 1:
+							if($filter['type'] == 'master'){
+								$searchType = 'master';
+							}
+							break; 
+						case 2:
+							$condition = "<=";
+							break;
+						case 3:
+							$condition = ">=";
+							break;
+						case 5:
+							$searchType = 'between';
+							break;
+						case 22: // CONTAINS
+							$condition = "like";
+							$searchType = 'like';
+							break;
+					}
+					if( $searchType == 'direct' ){
+						${{objectName-lowercase}}List = ${{objectName-lowercase}}List->where($filter['property'], $condition, (($filter['type'] == 'text' || $filter['type'] == 'dropdown') ? $filter['search_for_value'] : $filter['from_value']));
+					}
+					else if( $searchType == 'between' ){
+						${{objectName-lowercase}}List = ${{objectName-lowercase}}List->where($filter['property'], '>=', $filter['from_value'])->where($filter['property'], '<=', $filter['to_value']);
+					} else if ($searchType == 'like') {
+						${{objectName-lowercase}}List = ${{objectName-lowercase}}List->where($filter['property'], $condition,'%'.$filter['search_for_value'].'%');
+					} else if ($searchType == 'master') {
+						if(is_array($filter['search_for_value']) && array_key_exists("id", $filter['search_for_value']) )
+							${{objectName-lowercase}}List = ${{objectName-lowercase}}List->where($filter['property'], $condition, $filter['search_for_value']['id']);
+					}
+				}
+			}
+		}
+		if( isset($input["sortBy"]) && strlen(trim($input["sortBy"])) > 0 ){
+			if( trim($input["sortOrder"]) == "desc" )
+				${{objectName-lowercase}}List = ${{objectName-lowercase}}List->orderByDesc(trim($input["sortBy"]));
+			else
+				${{objectName-lowercase}}List = ${{objectName-lowercase}}List->orderBy(trim($input["sortBy"]));
+		}
+		if( isset($input["page"]) )
+			${{objectName-lowercase}}List = ${{objectName-lowercase}}List->paginate(10);
+		else{
+			if( isset($input["download"]) ){
+				$export = new \App\Exports\{{objectName}}Export(${{objectName-lowercase}}List);
+				switch( $input["download"] ){
+					case 'XLSX':
+						return Excel::download($export, '{{objectName}}List.xlsx', \Maatwebsite\Excel\Excel::XLSX);
+						break;
+					case 'XLS':
+						return Excel::download($export, '{{objectName}}List.xlsx', \Maatwebsite\Excel\Excel::XLS);
+						break;
+					case 'CSV':
+						return Excel::download($export, '{{objectName}}List.csv', \Maatwebsite\Excel\Excel::CSV, [
+							'Content-Type' => 'text/csv',
+						]);
+						break;
+					case 'PDF':
+						return Excel::download($export, '{{objectName}}List.pdf', \Maatwebsite\Excel\Excel::TCPDF);
+						break;
+					case 'ODS':
+						return Excel::download($export, '{{objectName}}List.ods', \Maatwebsite\Excel\Excel::ODS);
+						break;
+				}
+			}
+			else
+				${{objectName-lowercase}}List = ${{objectName-lowercase}}List->get();
+		}
+		return \App\Http\Resources\{{objectName}}Resource::collection(${{objectName-lowercase}}List);
+	}
+
+	{{addEditFunctions}}
+
+	public function getRecord($objectId){
+		$object = \App\Models\{{objectName}}::{{withClause}}find($objectId);
+		return $object->toJson();
+	}
+
+	{{viewFunction}}
+
+	// Save {{objectName-lowercase}}
+	public function save(Request $request){
+		$input = $request->all();
+		if( isset($input["{{objectName-lowercase}}"]) ){
+			${{objectName-lowercase}} = $input["{{objectName-lowercase}}"];
+			$objectToSave = [];
+			$checkTitle = true;
+			if( ${{objectName-lowercase}}["action"] == "status" ){
+				$objectToSave["status"] = ${{objectName-lowercase}}["status"];
+				if( ${{objectName-lowercase}}["status"] <= 0 )
+					$checkTitle = false;
+			}
+			if( ${{objectName-lowercase}}["action"] == "details" ){
+				$rules = [
+					{{addRequiredColumns}}
+				];
+				$validator = Validator::make(${{objectName-lowercase}}, $rules);
+				if ($validator->fails()) {
+					return response()->json(["status" => -1, "messages" => array_merge(...array_values($validator->errors()->toArray())) ]);
+				}
+				$objectToSave = ${{objectName-lowercase}};
+				if(  ${{objectName-lowercase}}["id"] == 0 ){
+					if(!isset($objectToSave["created_by"]) ){
+						$objectToSave["created_by"] = Auth::id();
+					}
+					{{autoGenerateCondition}}	
+				}
+				else
+					unset($objectToSave["created_by"]);
+
+			}
+
+			{{convertToJSON}}
+			${{objectName-lowercase}}Data =\App\Models\{{objectName}}::updateOrCreate( [ "id" => ${{objectName-lowercase}}["id"] ], $objectToSave );
+			event(new {{objectName}}Saved(${{objectName-lowercase}}Data));
+			return response()->json(["status" => 1, "id" => ${{objectName-lowercase}}Data->id]);
+		}
+		else{
+			return response()->json(["status" => -100, "messages" => ["Data for {{objectLabel}} is missing."]]);
+		}
+	}
+
+	// Duplicate the record
+	public function duplicateRecord(Request $request){
+		$input = $request->all();
+		if (isset($input["id"])) {
+			$objectId = $input["id"];
+			$duplicateObject = \App\Models\{{objectName}}::find($objectId)->replicate([]);
+			$duplicateObject->save();
+			{{clearMediaPart}}
+			$duplicateObject->created_by = Auth::id();
+			$duplicateObject->save();
+
+			return response()->json(["status" => 1, "id" => $duplicateObject->id]);
+		}
+		else{
+			return response()->json(["status" => -1, "messages" => ["Could not duplicate record."]]);
+		}
+	} 
+
+	// Delete the record
+	public function deleteRecord(Request $request){
+        ${{objectName-lowercase}} = \App\Models\{{objectName}}::find($request->id);
+        if ($request->status == 0) {
+            // Soft delete the record
+            ${{objectName-lowercase}}->delete();
+        } else {
+            // Restore the soft deleted record
+            ${{objectName-lowercase}}->restore();
+        }
+
+        return response()->json(['status' => 1, 'message' => '{{objectName}} updated successfully']);
+    }
+
+	{{templateAllUploadMethods}}
+
+	{{exportToPDF}}
+}

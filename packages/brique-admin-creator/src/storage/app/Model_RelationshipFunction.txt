@@ -1,3 +1,0 @@
-public function {{tbl_relation_method}}(){
-	return $this->belongsTo('App\Models\{{related_to_model}}', '{{this_model_id}}', '{{related_to_model_id}}');
-}

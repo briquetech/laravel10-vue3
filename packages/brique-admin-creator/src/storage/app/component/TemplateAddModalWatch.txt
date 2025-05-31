@@ -1,0 +1,40 @@
+	watch:{
+		{{objectName-lowercase}}ForAdd: {
+			immediate: true,
+			handler(newValue, oldValue) {
+				//if edit mode has value
+				try{
+					if(newValue && Object.keys(newValue).length > 0){
+						this.{{objectName-lowercase}}FormObj = this.{{objectName-lowercase}}ForAdd;
+						{{forWatchDate}}
+						{{relationMultiselect}}
+						{{textoptionMultiSelect}}
+						{{textOption}}
+						{{forWatchEditor}}
+						{{forWatchMonthPicker}}
+					}else{
+						this.{{objectName-lowercase}}FormObj = initialState();
+						{{forWatchElseEditor}}
+						this.{{objectName-lowercase}}FormObj.monthpicker = null;
+					}
+				}catch(error){
+					console.log("Watch Error:: ", error);
+				}
+				this.{{objectName-lowercase}}FormObj.reload = false;
+			},
+		},
+		'{{objectName-lowercase}}ForAdd.reload':{
+			handler(newValue, oldValue) {
+				if(this.{{objectName-lowercase}}ForAdd.reload){
+					this.save{{objectName}}();
+					this.{{objectName-lowercase}}FormObj.reload = false;
+				}
+			}
+		},
+		'{{objectName-lowercase}}ForAdd.closed':{
+			handler(newValue, oldValue) {
+				this.{{objectName-lowercase}}ForAdd.closed = false;
+				this.canceladdedit();
+			}
+		}
+	},

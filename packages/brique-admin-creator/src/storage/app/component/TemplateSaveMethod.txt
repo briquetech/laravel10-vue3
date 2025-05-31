@@ -1,0 +1,9 @@
+					if ({{saveCondition}}) {
+						that.showToast('{{objectLabel}} saved successfully.', 'success', 'bottom', 3000);
+						setTimeout(() => {
+							window.location = that.docRoot + "/{{objectName-lowercase}}/";
+							that.showLoading("Loading ...");
+						}, 1500);
+					}else {
+						that.handleUpload(response.data.id);
+					}

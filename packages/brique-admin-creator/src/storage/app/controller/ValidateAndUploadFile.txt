@@ -1,0 +1,34 @@
+        if ( $request->hasFile('uploaded_file_{{fileIndex}}') && $request->file('uploaded_file_{{fileIndex}}')->isValid()) {
+            $this->clearUpload(${{objectName-lowercase}}->{{fieldName}});
+            $file = $request->file('uploaded_file_{{fileIndex}}');
+            $timeStamp = time();
+            $extension = $file->getClientOriginalExtension();
+            $fileType = $file->getClientMimeType();
+            // Store the original image
+            if (in_array($fileType, ['image/jpg', 'image/jpeg', 'image/png','image/webp', 'image/svg+xml'])) {
+                $originalPath = 'uploads/'.$timeStamp.'_o.' . $extension;
+                $path = $file->storeAs('public', $originalPath);
+                // Read the original image for cropping
+                $imageContent = Storage::get('public/' . $originalPath);
+                $image = Image::read($imageContent)->resize(300, 300);
+                // Store the cropped image 1
+                $mediumThubnail = 'uploads/'.$timeStamp.'_m.' . $extension;
+                Storage::put('public/' . $mediumThubnail, $image->encodeByExtension($extension, quality: 70));
+                // Read the original image for cropping
+                $imageContent = Storage::get('public/' . $originalPath);
+                $image = Image::read($imageContent)->resize(150, 150);
+                // Store the cropped image2
+                $smallThubnail = 'uploads/'.$timeStamp.'_s.' . $extension;
+                Storage::put('public/' . $smallThubnail, $image->encodeByExtension($extension, quality: 70));
+                //JSON object for shipping address
+                $jsonObj['_o'] = $originalPath;
+                $jsonObj['_m'] = $mediumThubnail;
+                $jsonObj['_s'] = $smallThubnail;
+            } else {
+                $originalPath = 'uploads/'.$timeStamp.'_o.' . $extension;
+                $path = $file->storeAs('public', $originalPath);
+				$jsonObj['_o'] = $originalPath;
+            }
+            ${{objectName-lowercase}}->{{fieldName}} = json_encode($jsonObj);
+            ${{objectName-lowercase}}->save();
+        }

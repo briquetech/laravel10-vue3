@@ -1,0 +1,57 @@
+<template>
+	<div id="{{objectName-lowercase}}-main">
+		<div class="row mb-1" v-if="!isModal">
+			<div class="col-sm-7">
+				<div class="d-flex align-items-center mb-2">
+					<a id="add_{{objectName-lowercase}}_btn" class="btn btn-dark btn-sm me-4 d-flex align-items-center gap-2" :href="docRoot+'/{{objectName-lowercase}}'" role="button"><i class="ph ph-arrow-left"></i>Back to list</a>
+					<h4 class="m-0 text-capitalize">View {{objectName-lowercase}}</h4>
+				</div>
+			</div>
+		</div>
+		{{viewFields}}
+	</div>
+</template>
+<script>
+export default {
+	name: "{{objectName}}master",
+	props: ['current_user_id', 'all_permissions','id','isModal', 'read{{objectName}}'],
+	data(){
+		return{
+			currentUser: siteUserObject,
+			{{propObject}}
+			{{masterVariables}}
+		}
+	},
+	computed: {
+		{{methodView}}
+	},
+	methods: {
+		cancelAddEdit(event){
+			{{redirectionForCancelAddEdit}}
+		},
+		reloadEverything() {
+			if (this.id !== undefined && !isNaN(this.id)) {
+				// This is Edit mode - fetch inquiry data
+				var that = this;
+				var URL = this.docRoot + "/api/{{objectName-lowercase}}/get-record/" + this.id;
+				this.showLoading("Loading ...");
+				axios
+					.post(URL, {})
+					.then(function (response) {
+						that.closeSwal();
+						that.read{{objectName}} = Object.assign({}, response.data);
+					})
+					.catch(function (error) {
+						console.log(error);
+					});
+			}
+		}
+	},
+	async mounted() {
+		if (this.id > 0){
+			this.reloadEverything();
+			{{loadMasters}}
+		}
+	}
+}
+</script>

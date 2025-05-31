@@ -1,0 +1,36 @@
+<div class="row mb-4">
+	<div class="col-2 text-end px-1">
+        <label for="add_{{objectName-lowercase}}_{{columnName}}" class="form-label text-uppercase fw-bold">{{columnLabel}}{{columnRequired}}</label>{{columnHelp}}
+	</div>
+	<div class="col-7">
+		<div class="d-flex flex-row gap-3">
+			<div class="mb-2" v-if="{{objectName-lowercase}}FormObj.{{columnName}} && {{objectName-lowercase}}FormObj.{{columnName}}.length > 5">
+				<img :src="docRoot+'/{{objectName-lowercase}}/view-file/' + {{objectName-lowercase}}FormObj.id +'/fileupload/_s/123'" style="max-width: 100px" />
+				<p class="my-2 p-0"><a href="javascript:void(0)" class="btn btn-sm btn-outline-danger" @click="clearUpload({{index}},'{{columnName}}')">Clear</a></p>
+			</div>
+			<template v-else>
+				<div>
+					<input type="file" id="{{columnName}}" ref="{{columnName}}" @change="prepareUpload($event, {{index}}, {{maxFileSize}}, '{{fileSizeType}}', '{{formatType}}')"/>
+					<div class="d-flex flex-row gap-3 align-items-center mb-2">
+						<label for="{{columnName}}" class="bg-dark p-2 text-white rounded-2">
+							<span v-if="document{{index}}.file_name">Upload new file</span>
+							<span v-else>Upload file</span>
+						</label>
+						<button typ="button" class="btn btn-outline-danger" v-if="document{{index}}.contents && document{{index}}.contents.length > 0" @click="cancelUpload({{index}})">Clear</button>
+					</div>
+					<p class="text-dark mb-0">
+						<small>Maximum upload size is {{maxFileSize}}{{fileSizeType}}. </small>
+						<small v-if="this.document{{index}}.file_type === 'img'">Supported format is JPG, JPEG and PNG only.</small>
+						<small v-else-if="this.document{{index}}.file_type === 'doc'">Supported format is pdf, msword, docx & open xml format.</small>
+						<small v-else>Support any file.</small>
+					</p>
+					<p class="text-dark mb-0" v-if="this.document{{index}}.file_type === 'img'"><small>Please ensure that the dimensions are correct.</small></p>
+					{{columnRequiredError}}
+				</div>
+			</template>
+		</div>
+	</div>
+	<div class="col-3" v-if="document{{index}}.contents && document{{index}}.contents.length > 0">
+		<img :src="document{{index}}.contents.startsWith('data:image') ? document{{index}}.contents : '/imgs/pdf.svg'" class="img-fluid" style="max-height: 100px;">
+	</div>
+</div>

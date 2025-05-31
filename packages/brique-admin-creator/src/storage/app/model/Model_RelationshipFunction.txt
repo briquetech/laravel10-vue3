@@ -1,0 +1,3 @@
+public function {{method}}(){
+	return $this->belongsTo('App\Models\{{related_model}}', '{{id_attribute}}', '{{related_model_id}}');
+}

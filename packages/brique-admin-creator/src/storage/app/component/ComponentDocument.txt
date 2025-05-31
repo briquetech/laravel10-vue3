@@ -1,0 +1,6 @@
+            document{{uploadIndex}}: {
+				uploaded_file: null,
+				contents: null,
+				file_name: "",
+				file_type: "{{formatType}}"
+			},

@@ -1,0 +1,50 @@
+    // Export to PDF
+	public function exportToPDF($id, Request $request){
+		${{objectName-lowercase}} = \App\Models\{{objectName}}::{{withClause}}find($id);
+		$filename = ${{objectName-lowercase}}->id.".pdf";
+		$data = [
+			'{{objectName-lowercase}}' => ${{objectName-lowercase}},
+		];
+		$data["images"] = [];
+		{{extractImagesPathPart}}
+		$view = View::make('pdfs.{{objectName-lowercase}}', $data);
+		$html = $view->render();
+		$pdf = new \App\Models\BotPDF;
+		// set default header data
+		$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+		// $pdf->SetFooterMargin(2);
+		$pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, "", "");
+		// set margins
+		// $pdf->SetMargins(PDF_MARGIN_LEFT, 35, PDF_MARGIN_RIGHT, true);
+		$pdf->SetAutoPageBreak(TRUE, 1);
+		$pdf->SetTitle(${{objectName-lowercase}}->id);
+		$pdf->AddPage();
+		$pdf->setFontSize(10);
+		$pdf->setTopMargin(round($pdf->headerHeight));
+		$pdf->writeHTML($html, true, false, true, false, '');
+		// Get images
+		if( count($imagePaths) > 0 ){
+			$pdf->SetMargins(0, 0, 0);
+			// Remove header and footer
+			$pdf->setPrintHeader(false);
+			$pdf->setPrintFooter(false);
+			foreach ($imagePaths as $image) {
+				$imageAbsolutePath = storage_path("app" . DIRECTORY_SEPARATOR . $image);
+				list($imageWidth, $imageHeight) = getimagesize($imageAbsolutePath);
+				
+				// Convert image dimensions to millimeters (assuming 96 DPI)
+				$dpi = 96;
+				$imageWidthMM = $imageWidth * 25.4 / $dpi;
+				$imageHeightMM = $imageHeight * 25.4 / $dpi;
+
+				$pdf->AddPage(($imageWidth > $imageHeight ? 'L' : 'P'), 'A4');
+				$pageWidth = $pdf->getPageWidth();
+				$pageHeight = $pdf->getPageHeight();
+				$pdf->Image(
+					$imageAbsolutePath, 
+					0, 0, $pageWidth, $pageHeight,
+					'', '', '', true, 300, '', false, false, 0, 'LT', false, false);
+			}
+		}
+		$pdf->Output($filename, 'D');
+	}

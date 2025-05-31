@@ -37,6 +37,7 @@
 		<p class="m-0">Please make sure that the column that you select here, has "boolean" data type.</p>
 	</div>
 </div>
+<!-- for view and add -->
 <div class="row mb-3">
 	<div class="col-3 py-2 text-end">
 		<label for="objectName" class="form-label">View Records - Columns Per Row</label>
@@ -49,6 +50,7 @@
 		</select>
 	</div>
 </div>
+<!-- for view and add -->
 <div class="accordion" id="accordionTblColumns">
 	<div class="accordion-item" v-for="(column, index) in columns">
 		<template v-if="['id', 'created_at', 'updated_at', 'status', 'created_by'].indexOf(column.name) < 0">

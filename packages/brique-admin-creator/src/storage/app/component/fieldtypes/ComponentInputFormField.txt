@@ -1,0 +1,9 @@
+<div class="col">
+	<label for="add_{{objectName-lowercase}}_{{columnName}}" class="form-label text-uppercase fw-bold me-3">{{columnLabel}}{{columnRequired}}</label>{{columnHelp}}
+	<div class="input-group">
+		{{prefix}}
+        <input type="{{columnType}}" class="form-control" {{v-empty-zero}} v-model="{{objectName-lowercase}}FormObj.{{columnName}}" id="add_{{objectName-lowercase}}_{{columnName}}" placeholder="{{columnHint}}" {{isDisabled}}>
+		{{suffix}}
+	</div>
+	{{columnRequiredError}}
+</div>

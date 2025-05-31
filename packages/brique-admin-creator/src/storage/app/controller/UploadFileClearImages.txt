@@ -1,0 +1,5 @@
+if ({{validateUploadedFileConditions}} ) {
+    {{validateUploadedField}}
+    return response()->json(["status" => 1]);
+}else
+    return response()->json(["status" => -1]);

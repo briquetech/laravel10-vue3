@@ -1,0 +1,123 @@
+<template>
+	<div id="{{objectName-lowercase}}-main">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="row mb-1">
+					<div class="col-sm-7">
+						<div class="d-flex align-items-center mb-2">
+							<h4 class="m-0 me-4 text-capitalize">{{objectName-lowercase}}</h4>
+							{{addRedirection}}
+						</div>
+					</div>
+				</div>
+				<DataTableComponent :dataprops="dataprops" @view-object="view{{objectName}}" @edit-object="prepareEdit{{objectName}}" @toggle-object-status="delete{{objectName}}" @export-object="print{{objectName}}"  @duplicate-object="duplicateObject"></DataTableComponent>
+			</div>
+		</div>
+		{{addEditModal}}
+		{{viewRecordModal}}
+	</div>
+</template>
+<script>
+import * as bootstrap from 'bootstrap';
+export default {
+	name: "{{objectName}}master",
+	props: ['current_user_id', 'all_permissions'],
+	data(){
+		return{
+			dataprops: {
+				id: '{{objectName-lowercase}}-list',
+				class: 'a',
+				base_url: '/api/{{objectName-lowercase}}/',
+				columns: [
+					{{listFields}}
+				],
+				data_to_send: { current_user_id: this.current_user_id } ,
+				reload: false,
+				{{searchParams}}
+			},
+			addeditModal: null,
+			viewModal: null,
+			currentUser: siteUserObject,
+			read{{objectName}}: {},
+			{{objectName-lowercase}}ForAdd: {},
+			{{masterVariables}}
+		}
+	},
+	methods: {
+		canceladdedit(event){
+			this.{{objectName-lowercase}}ForAdd.closed = true;
+		},
+		prepareEdit{{objectName}}({{objectName-lowercase}}){
+			{{redirectionForPrepareEdit}}
+		},
+		view{{objectName}}({{objectName-lowercase}}){
+			{{redirectionForView}}
+		},
+		prepareAddModal(obj){
+			this.{{objectName-lowercase}}ForAdd = Object.assign({});
+		},
+		save{{objectName}}(){
+			this.{{objectName-lowercase}}ForAdd.reload = true;
+		},
+		duplicateObject({{objectName-lowercase}}) {
+			let that = this;
+			this.showConfirm("Are you sure you want to create a duplicate of this record?", "Yes", "No").then((result) => {
+				if (result.isConfirmed) {
+					// Call AXIOS to duplicate the invoice and then open in EDIT Mode
+					this.showLoading("Saving ...");
+					axios.post(this.docRoot+'/{{objectName-lowercase}}/duplicate', { id: {{objectName-lowercase}}.id }).then(async function (response) {
+						that.closeSwal();
+						var status = response.data.status;
+						if (status == 1) {
+							var newId = response.data.id;
+							// Ajax to submit
+							that.showToast('Record duplicated successfully', 'success', 'bottom', 3000);
+							setTimeout(() => {
+								that.showLoading("Redirecting ...");
+							}, 2000);
+							setTimeout(() => {
+								window.location = that.docRoot+'/{{objectName-lowercase}}/edit/' + newId+"?duplicate=1";
+							}, 4000);
+						}
+					});
+				}
+			});
+		},
+		delete{{objectName}}({{objectName-lowercase}}, status){
+			var thisVar = this;
+			Swal.fire({
+				icon: "question",
+				html: "Do you really want to delete?",
+				showCancelButton: true,
+			}).then((result) => {
+				if (result.isConfirmed) {
+					axios.post('/{{objectName-lowercase}}/delete', { id: {{objectName-lowercase}}.id, status: status })
+                        .then(function (response) {
+                            if (response.data.status == 1) {
+                                thisVar.showToast('{{objectLabel-uppercase}} updated successfully', 'success', 'bottom', 3000);
+                                thisVar.dataprops.reload = true;
+                            } else {
+                                thisVar.showErrors("{{objectLabel-uppercase}} could not be updated successfully", response.data.messages, "bottom", 3000);
+                            }
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                            thisVar.showToast("{{objectLabel-uppercase}} could not be updated successfully", "error", "bottom", 3000);
+                        });
+				}
+			});
+		},
+		print{{objectName}}({{objectName-lowercase}}) {
+			window.location = this.docRoot+'/{{objectName-lowercase}}/export-to-pdf/' + {{objectName-lowercase}}.id;
+			this.showToast("Printing. Please wait ...", "success", "bottom", 3000);
+		},
+	},
+	async mounted() {
+		await this.$nextTick(() => {
+			{{mountedAddEditModal}}
+			{{mountedReadModal}}
+		});
+		{{loadMasters}}
+	}
+}
+</script>

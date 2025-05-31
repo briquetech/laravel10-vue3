@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Http\Resources;
+
+use App\Models\PlatformObject;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use App\Services\ActionsService;
+
+class {{objectName}}Resource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array{
+		$input = $request->all();
+		$actions = [];
+		{{auth-actions}}
+		return [
+			{{resource-fields}}
+			'current_user_admin' => ( $isUserAdmin ? 1 : 0 ),
+			'actions' => $actions
+		];
+    }
+}

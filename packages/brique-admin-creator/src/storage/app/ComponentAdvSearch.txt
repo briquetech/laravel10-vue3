@@ -1,5 +1,0 @@
-				search_params: {
-					columns: [
-						{{advancedSearchColumns}}
-					]
-				}

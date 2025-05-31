@@ -14,11 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 // Role
 Route::post('/role/get', [App\Http\Controllers\RoleController::class, 'get'])->name('get-role-list');
 // User
 Route::post('/user/get', [App\Http\Controllers\UserController::class, 'get'])->name('get-user-list');
+
+// Company	
+Route::post('/company/get', [App\Http\Controllers\CompanyController::class, 'get'])->name('get-company-list');
+Route::post('/company/get-record/{id}', [App\Http\Controllers\CompanyController::class, 'getRecord'])->name('get-company-record');

@@ -1,0 +1,9 @@
+if (which == {{uploadIndex}}) {
+    this.document{{uploadIndex}} = {
+        uploaded_file: null,
+        contents: null,
+        file_name: "",
+    };
+	this.$refs.{{columnName}}.value = null;
+
+}

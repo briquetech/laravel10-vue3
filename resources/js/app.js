@@ -75,5 +75,6 @@ app.directive("emptyZero", {
     },
 });
 app.use(CKEditor);
+app.config.globalProperties.docRoot = window.location.origin;
 
 app.mount('#app');

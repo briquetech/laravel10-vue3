@@ -2,17 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
 Route::get('/', function () {
     return view('welcome');
 });
@@ -35,3 +24,15 @@ Route::middleware(['auth'])->group(function () {
 	Route::post('/selectuser', [App\Http\Controllers\UserController::class, 'loadForSelection'])->name('selectuser');
 
 });
+
+// Company
+Route::get('/company', [App\Http\Controllers\CompanyController::class, 'index'])->name('company-list');
+Route::post('/company/save', [App\Http\Controllers\CompanyController::class, 'save'])->name('save-company');
+Route::post('/selectcompany', [App\Http\Controllers\CompanyController::class, 'loadForSelection'])->name('selectcompany');
+Route::get('/company/edit/{id}', [App\Http\Controllers\CompanyController::class, 'edit'])->name('edit-company-page');
+Route::post('/company/duplicate', [App\Http\Controllers\CompanyController::class, 'duplicateRecord'])->name('duplicate-company-page');
+Route::get('/company/view-file/{id}/{fieldName}/{size}/{randomId}', [App\Http\Controllers\CompanyController::class, 'viewFile'])->name('view-company-file');
+Route::get('/company/export-to-pdf/{id}', [App\Http\Controllers\CompanyController::class, 'exportToPDF'])->name('print-company');
+Route::post('/company/upload-file', [App\Http\Controllers\CompanyController::class, 'uploadFile'])->name('upload-company-file');
+Route::post('/company/clear-file/{id}/{randomId}', [App\Http\Controllers\CompanyController::class, 'clearFile'])->name('clear-company-file');
+Route::post('/company/delete', [App\Http\Controllers\CompanyController::class, 'deleteRecord'])->name('deletecompany');

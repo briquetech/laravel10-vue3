@@ -1,0 +1,7 @@
+<div class="col">
+	<label for="add_{{objectName-lowercase}}_{{columnName}}" class="form-label text-uppercase fw-bold me-3">{{columnLabel}}{{columnRequired}}</label>
+	<div>
+		<MonthYearPicker  v-model="{{objectName-lowercase}}FormObj.{{columnName}}" :min="new Date({{minMonth}})" :max="new Date({{maxMonth}})" returnmode="String" class="form-select"/>
+	</div>
+	{{columnRequiredError}}
+</div>

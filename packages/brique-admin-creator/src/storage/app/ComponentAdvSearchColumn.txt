@@ -1,6 +1,0 @@
-						{
-							title: "{{columnLabel-uppercase}}",
-							property: "{{columnName}}",
-							type: "{{columnType}}",
-							{{minMaxValues}}{{sourceEnum}}{{masterDetails}}
-						},

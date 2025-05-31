@@ -1,0 +1,8 @@
+<div class="col-12 mt-2">
+	<label for="ref_{{objectName-lowercase}}_{{columnName}}" class="form-label text-uppercase fw-bold me-3">{{columnLabel}}{{columnRequired}}</label>{{columnHelp}}
+	<div class="mb-2">
+		<div ref="ref_{{columnName}}"></div>
+		<input type="hidden" v-model="{{objectName-lowercase}}FormObj.{{columnName}}">
+	</div>
+	{{columnRequiredError}}
+</div>

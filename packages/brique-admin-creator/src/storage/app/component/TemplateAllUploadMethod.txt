@@ -1,0 +1,99 @@
+
+        prepareUpload(event, which, maxFileSize, fileSizeType, fileType) {
+			let file = event.target.files[0];
+			if ( fileSizeType === 'mb' && file.size > maxFileSize * 1024 * 1024 ) {
+				this.showToast(`File size cannot exceed ${maxFileSize}MB.`, "error", "bottom", 3000);
+				return;
+			}else if( fileSizeType === 'kb' && file.size > maxFileSize * 1000 ){
+				this.showToast(`File size cannot exceed ${maxFileSize}KB.`, "error", "bottom", 3000);
+				return;
+			}
+			if (fileType === 'img') {
+				if (file.type != "image/jpg" && file.type != "image/jpeg" && file.type != "image/png" && file.type != "image/webp" && file.type != "image/svg+xml") {
+					this.showToast("You can only upload JPG, JPEG and PNG images.", "error", "bottom", 3000);
+					return;
+				}
+			} else if (fileType === 'doc') {
+				if (file.type != "application/pdf" && file.type != "application/msword" && file.type != "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+					this.showToast("You can only upload PDF, DOC, and DOCX documents.", "error", "bottom", 3000);
+					return;
+				}
+			}
+			{{prepareUploadCondition}}
+			const reader = new FileReader();
+			reader.onload = ((e) => {
+				{{prepareUploadCondition2}}
+			});
+			reader.readAsDataURL(file);
+		},
+        cancelUpload(which) {
+            {{cancelUploadCondition}}
+        },
+		handleUpload(id) {
+			let that = this;
+			const formData = new FormData();
+			formData.append("{{objectName-lowercase}}_id", id);
+			{{handleUploadCondition}}
+			// Send the data
+			let URL = this.docRoot + "/{{objectName-lowercase}}/upload-file";
+			axios.post(URL, formData, {
+				headers: {
+					"Content-Type": "multipart/form-data"
+				}
+			})
+			.then(function (response) {
+				console.log(response);
+				that.closeSwal();
+				var status = response.data.status;
+				if (status == 1) {
+					that.showToast("{{objectName}} Record saved successfully.", "success", "bottom", 3000);
+					that.imageId = Math.round(Math.random() * 100);
+					setTimeout(() => {
+						window.location = that.docRoot + "/{{objectName-lowercase}}/";
+						that.showLoading("Loading ...");
+					}, 1500);
+				}
+				else {
+					that.showErrors("{{objectName}} Record has been saved but the File could not be uploaded successfully.", response.data.messages, "bottom", 5000);
+				}
+				return status;
+			})
+			.catch(function (error) {
+				console.log(error);
+				that.closeSwal();
+				that.showToast("File could not be uploaded successfully.", "error", "bottom", 3000);
+				return -1;
+			});
+		},
+		clearUpload(purpose, fieldName) {
+			let that = this;
+			let URL = this.docRoot + "/{{objectName-lowercase}}/clear-file/" + purpose + "/" + this.{{objectName-lowercase}}FormObj.id;
+			this.showConfirm("Do you really want to delete the file?", "Yes", "No").then((result) => {
+				if (result.isConfirmed) {
+					this.showLoading("Clearing file ...");
+					axios.post(URL, {fieldName:fieldName}, {
+						headers: {
+							"Content-Type": "multipart/form-data"
+						}
+					}).then(function (response) {
+						that.closeSwal();
+						var status = response.data.status;
+						console.log(response);
+						if (status == 1) {
+							that.showToast("File cleared successfully.", "success", "bottom", 3000);
+							{{clearUploadCondition}}
+						}
+						else {
+							that.showErrors("File could not be cleared successfully.", response.data.messages, "bottom", 5000);
+						}
+						return status;
+					})
+					.catch(function (error) {
+						console.log(error);
+						that.closeSwal();
+						that.showToast("File could not be cleared successfully.", "error", "bottom", 3000);
+						return -1;
+					});
+				}
+			});
+		},

@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Listeners;
+
+use App\Events\{{objectName}}Saved;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
+
+class Handle{{objectName}}Saved{
+    /**
+     * Create the event listener.
+     */
+    public function __construct(){
+        //
+    }
+
+    /**
+     * Handle the event.
+     *  
+     */
+    public function handle({{objectName}}Saved $event){
+        Log::info('{{objectName-lowercase}} listener: ',['{{objectName-lowercase}}' => $event->{{objectName-lowercase}}]);
+    }
+}

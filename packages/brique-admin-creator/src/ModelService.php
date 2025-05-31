@@ -1,154 +1,112 @@
 <?php
 namespace BriqueAdminCreator;
 
+use Illuminate\Support\Facades\Log;
+
 class ModelService{
 
-	public static function generateModelContent($jsonObject, $fillableColumns, $relationshipColumns){
+	public static function generateModelContent($objectName, $tableName, $allColumns){
 		// Create relationships
 		$relationships = "";
-		$modelRelationshipsContents = file_get_contents(__DIR__.'/storage/app/Model_RelationshipFunction.txt');
-		foreach ($relationshipColumns as $column) {
-			//related_to_model, related_to_model_id
-			if( isset($column["tbl_relation_method"]) && $column["tbl_relation_method"] != null && strlen($column["tbl_relation_method"]) > 0 
-				&& isset($column["related_to_model"]) && $column["related_to_model"] != null && strlen($column["related_to_model"]) > 0
-				&& isset($column["related_to_model_id"]) && $column["related_to_model_id"] != null && strlen($column["related_to_model_id"]) > 0 ){
-				$relationships .= $modelRelationshipsContents."\n\n";
-				$relationships = str_replace('{{objectName}}', $jsonObject["object_name"], $relationships);
-				$relationships = str_replace('{{tbl_relation_method}}', $column["tbl_relation_method"], $relationships);
-				$relationships = str_replace('{{related_to_model}}', $column["related_to_model"], $relationships);
-				$relationships = str_replace('{{this_model_id}}', $column["name"], $relationships);
-				$relationships = str_replace('{{related_to_model_id}}', $column["related_to_model_id"], $relationships);
+		$modelRelationshipsTemplate = file_get_contents(__DIR__.'/storage/app/model/Model_RelationshipFunction.txt');
+		$fillableColumns = [];
+		foreach ($allColumns as $column) {
+			if(!in_array($column["name"], ['created_at', 'updated_at', 'deleted_at']))
+				array_push($fillableColumns, $column["name"]);
+			//related_model, related_model_id
+			if( isset($column["table_view"]) && isset($column["table_view"]["type"]) && $column["table_view"]["type"]== 'relation'){
+				if( isset($column["relation"]["method"]) && $column["relation"]["method"] != null && strlen($column["relation"]["method"]) > 0 
+				&& isset($column["relation"]["related_model"]) && $column["relation"]["related_model"] != null && strlen($column["relation"]["related_model"]) > 0
+				&& isset($column["relation"]["related_model_id"]) && $column["relation"]["related_model_id"] != null && strlen($column["relation"]["related_model_id"]) > 0 ){
+					$relationships .= $modelRelationshipsTemplate."\n\n";
+					$relationships = str_replace('{{objectName}}', $objectName, $relationships);
+					$relationships = str_replace('{{method}}', $column["relation"]["method"], $relationships);
+					$relationships = str_replace('{{related_model}}', $column["relation"]["related_model"], $relationships);
+					$relationships = str_replace('{{id_attribute}}', $column["relation"]["id_attribute"], $relationships);
+					$relationships = str_replace('{{related_model_id}}', $column["relation"]["related_model_id"], $relationships);
+				}
 			}
 		}
-		$modelContents = file_get_contents(__DIR__.'/storage/app/Model.txt');
-		$modelContents = str_replace('{{objectName}}', $jsonObject["object_name"], $modelContents);
-		$modelContents = str_replace('{{table_name}}', $jsonObject["tbl"], $modelContents);
+		$modelContents = file_get_contents(__DIR__.'/storage/app/model/Model.txt');
+		$modelContents = str_replace('{{objectName}}', $objectName, $modelContents);
+		$modelContents = str_replace('{{table_name}}', $tableName, $modelContents);
 		// Append status column
-		array_push($fillableColumns, $jsonObject["activate_deactivate_column"]);
+		// array_push($fillableColumns, $jsonObject["activate_deactivate_column"]);
 		$modelContents = str_replace('{{all_columns}}', "'".implode("', '", $fillableColumns)."'", $modelContents);
 		$modelContents = str_replace('{{relationships}}', $relationships, $modelContents);
 		return $modelContents;
 	}
 
 	// Resource for the Model
-	public static function generateModelResourceContent($jsonObject, $fillableColumns, $relationshipColumns){
-		$modelResourceContents = file_get_contents(__DIR__.'/storage/app/ModelResource.txt');
-		$modelResourceContents = str_replace('{{objectName}}', $jsonObject["object_name"], $modelResourceContents);
+	public static function generateModelResourceContent($objectName, $allColumns, $authRequired){
+		$authActionsTrue = "
+		if (isset(\$input['current_user_id']) && \$input['current_user_id'] > 0) {
+			\$currentUser = \App\Models\User::find(\$input['current_user_id']);
+			\$actions = ActionsService::generateActions(\App\Models\\".$objectName."::class, \$currentUser->role_id, \$this->status);
+		};";
+		$authActionsFalse = "
+			// If authorization is not required then show all btns
+			\$actions = ActionsService::generateActions(\App\Models\\".$objectName."::class, 1, \$this->status);";
+
+		$modelResourceContents = file_get_contents(__DIR__.'/storage/app/model/ModelResource.txt');
+		$modelResourceContents = str_replace('{{objectName}}', $objectName, $modelResourceContents);
 		$resourceColumns = "";
-		foreach ($fillableColumns as $fillableColumn) {
-			$resourceColumns .= "'".$fillableColumn."' => \$this->".$fillableColumn.",\n";
-		}
-		foreach ($relationshipColumns as $column) {
-			$resourceColumns .= "'".$column["tbl_relation_method"]."' => \$this->".$column["tbl_relation_method"].",\n";
+		$fillableColumns = [];
+		foreach ($allColumns as $column) {
+			$resourceColumns .= "'".$column["name"]."' => \$this->".$column["name"].",\n";
+			if($column["form"]["type"] == 'relation')
+				$resourceColumns .= "'".$column["relation"]["method"]."' => \$this->".$column["relation"]["method"].",\n";
 		}
 		$modelResourceContents = str_replace('{{resource-fields}}', $resourceColumns, $modelResourceContents);
+		if( $authRequired ){
+			$modelResourceContents = str_replace('{{auth-actions}}', $authActionsTrue, $modelResourceContents);
+		}else{
+			$modelResourceContents = str_replace('{{auth-actions}}', $authActionsFalse, $modelResourceContents);
+		}
 		return $modelResourceContents;
 	}
 
-	// Controller
-	public static function generateControllerContent($jsonObject, $searchColumns, $requiredColumns, $uniqueColumn, $tableRelationshipColumns){
-		$controllerContents = file_get_contents(__DIR__.'/storage/app/Controller.txt');
-		$controllerSimpleSeearchClauseContents = file_get_contents(__DIR__.'/storage/app/ControllerSimpleSearchClause.txt');
-		// Controller - replace tokens
-		$controllerContents = str_replace('{{objectName}}', $jsonObject["object_name"], $controllerContents);
-		$controllerContents = str_replace('{{objectLabel}}', $jsonObject["object_label"], $controllerContents);
-		$controllerContents = str_replace('{{objectName-lowercase}}', strtolower($jsonObject["object_name"]), $controllerContents);
-		$simpleSearchColumns = "";
-		$advancedSearchColumnsMatch = "";
-		$advancedSearchColumnsLike = "";
-		$i = 0;
-		foreach ($searchColumns as $column) {
-			if( $i++ == 0){
-				$simpleSearchColumns = "where('".$column."', 'like', '%'.trim(\$input['q']).'%')";
-				$advancedSearchColumnsMatch = "where('".$column."', trim(\$filter['search_for_value']))";
-				$advancedSearchColumnsLike = "where('".$column."', 'like', '%'.trim(\$filter['search_for_value']).'%')";
-			}
-			else{
-				$simpleSearchColumns .= "->orWhere('".$column."', 'like', '%'.trim(\$input['q']).'%')"; 
-				$advancedSearchColumnsMatch .= "->orWhere('".$column."', trim(\$filter['search_for_value']))";
-				$advancedSearchColumnsLike .= "->orWhere('".$column."', 'like', '%'.trim(\$filter['search_for_value']).'%')";
-			}
-			if( $i < count($searchColumns)-1 ){
-				$simpleSearchColumns .= "\n";
-				$advancedSearchColumnsMatch .= "\n";
-				$advancedSearchColumnsLike .= "\n";
-			}
+	public static function generateWebRouteContent($jsonObject){
+		$routeTemplate = file_get_contents(__DIR__.'/storage/app/WebRoute.txt');
+		$objectName = str_replace(' ', '', $jsonObject["object_name"]);
+		$routeTemplate = str_replace("{{objectName}}", $objectName, $routeTemplate);
+		$routeTemplate = str_replace("{{objectName-lowercase}}", strtolower($objectName), $routeTemplate);
+		if($jsonObject["form_mode"] === 'different_page'){
+			$routeTemplate .= "Route::get('/".strtolower($objectName)."/add', [App\Http\Controllers\\".$objectName."Controller::class, 'add'])->name('add-".strtolower($objectName)."-page');\n";
 		}
-
-		$requiredColumnsCondition = "";
-		foreach ($requiredColumns as $column) {
-			$requiredColumnsCondition .= "'".$column['name']."' => 'required";
-			if( $column["form_type"] == "text" || $column["form_type"] == "textarea" || $column["form_type"] == "richeditor" || $column["form_type"] == "password" || $column["form_type"] == "radio" || $column["form_type"] == "yesno" || $column["form_type"] == "checkbox" )
-				$requiredColumnsCondition .= "|string";
-			elseif( $column["form_type"] == "email" )
-				$requiredColumnsCondition .= "|email:filter";
-			elseif( $column["form_type"] == "numeric" )
-				$requiredColumnsCondition .= "|integer";
-			elseif( $column["form_type"] == "decimal" )
-				$requiredColumnsCondition .= "|decimal:0,2";
-			elseif( $column["form_type"] == "telephone" )
-				$requiredColumnsCondition .= "|min:6|max:12";
-			elseif( $column["form_type"] == "url" )
-				$requiredColumnsCondition .= '|url:http,https';
-			elseif( $column["form_type"] == "date" )
-				$requiredColumnsCondition .= '|date';
-			elseif( $column["form_type"] == "datetime" )
-				$requiredColumnsCondition .= '|datetime';
-			elseif( $column["form_type"] == "toggle" )
-				$requiredColumnsCondition .= '|boolean';
-			elseif( $column["form_type"] == "fileupload" )
-				$requiredColumnsCondition .= '|file';
-			$requiredColumnsCondition .= "',\n";
+		if($jsonObject["view_mode"] === 'different_page'){
+			$routeTemplate .= "Route::get('/".strtolower($objectName)."/view/{id}', [App\Http\Controllers\\".$objectName."Controller::class, 'view'])->name('view-".strtolower($objectName)."-page');\n";
 		}
-		$controllerContents = str_replace('{{simpleSearchColumns}}', $simpleSearchColumns, $controllerContents);
-		$controllerContents = str_replace('{{advancedSearchColumns-match}}', $advancedSearchColumnsMatch, $controllerContents);
-		$controllerContents = str_replace('{{advancedSearchColumns-like}}', $advancedSearchColumnsLike, $controllerContents);
-		$controllerContents = str_replace('{{addRequiredColumns}}', $requiredColumnsCondition, $controllerContents);
-		$uniqueColumnContents = "";
-		if( $uniqueColumn != null ){
-			$uniqueColumnContents = file_get_contents(__DIR__.'/storage/app/ControllerUniqueCheck.txt');
-			$uniqueColumnContents = str_replace('{{objectName}}', $jsonObject["object_name"], $uniqueColumnContents);
-			$uniqueColumnContents = str_replace('{{uniqueColumn}}', $uniqueColumn["name"], $uniqueColumnContents);
-			$uniqueColumnContents = str_replace('{{objectName-lowercase}}', strtolower($jsonObject["object_name"]), $uniqueColumnContents);
-			$uniqueColumnContents = str_replace('{{uniqueColumnLabel}}', $uniqueColumn["frm_label"], $uniqueColumnContents);
-		}
-		$controllerContents = str_replace('{{uniqueColumnPart}}', $uniqueColumnContents, $controllerContents);
-		$withClause = "";
-		$relationshipSearch = "";
-		if( count($tableRelationshipColumns) > 0 ){
-			$withClause = "with(";
-			foreach ($tableRelationshipColumns as $tableRelationshipColumn) {
-				$withClause .= "'".$tableRelationshipColumn["tbl_relation_method"]."', ";
-				if( array_search($tableRelationshipColumn["name"], $searchColumns) >= 0 ){
-					$relationshipSearch .= $controllerSimpleSeearchClauseContents;
-					$relationshipSearch = str_replace('{{objectName-lowercase}}', strtolower($jsonObject["object_name"]), $relationshipSearch);
-					$relationshipSearch = str_replace('{{objectRelationshipName}}', $tableRelationshipColumn["tbl_relation_method"], $relationshipSearch);
-					$relationshipSearch = str_replace('{{columnName}}', $tableRelationshipColumn["related_to_model_title"], $relationshipSearch);
-				}
-			}
-			$withClause = substr($withClause, 0, strlen($withClause)-2);
-			$withClause .= ")->";
-		}
-		$controllerContents = str_replace('{{withClause}}', $withClause, $controllerContents);
-		$controllerContents = str_replace('{{simpleSearchRelationshipColumns}}', $relationshipSearch, $controllerContents);
-		return $controllerContents;
+		return $routeTemplate;
 	}
 
-	public static function generateExportContent($jsonObject, $requiredColumns){
-		$exportContents = file_get_contents(__DIR__.'/storage/app/Export.txt');
-		$exportContents = str_replace('{{objectName}}', $jsonObject["object_name"], $exportContents);
+	public static function generateExportContent($objectName, $allColumns){
+		$exportContents = file_get_contents(__DIR__.'/storage/app/model/Export.txt');
+		$exportContents = str_replace('{{objectName}}', $objectName, $exportContents);
 		$exportColumnLabels = "";
 		$exportMapColumns = "";
-		foreach ($requiredColumns as $column) {
-			$exportColumnLabels .= "'".$column['tbl_label']."',";
-			$exportMapColumns .= "\$row->".$column['name'].",";
+		foreach ($allColumns as $column) {
+			if( $column["table_view"]["use_in_download"] == true ){
+				$exportColumnLabels .= "'".$column['table_view']['label']."',";
+				if( $column["table_view"]["type"] == 'relation' ){
+					$exportMapColumns .= "\$row->".$column['relation']['method']."->".$column['relation']['title_attribute'].",\n";
+				}else{
+					$exportMapColumns .= "\$row->".$column['name'].",\n";
+				}
+			}
 		}
 		$exportContents = str_replace('{{exportColumnLabels}}', $exportColumnLabels, $exportContents);
 		$exportContents = str_replace('{{exportMapColumns}}', $exportMapColumns, $exportContents);
 		return $exportContents;
 	}
 
-	public static function generateReadmeContent($jsonObject, $formRelationshipColumns){
+	public static function generateReadmeContent($jsonObject, $allColumns){
+		$formRelationshipColumns = [];
+		foreach ($allColumns as $column) {
+			if( isset($column["form"]["type"]) && $column["form"]["type"]== 'relation'){
+				array_push($formRelationshipColumns, $column);
+			}
+		}
 		$readmeContents = file_get_contents(__DIR__.'/storage/app/README');
 		$readmeContents = str_replace('{{objectName}}', $jsonObject["object_name"], $readmeContents);
 		$readmeContents = str_replace('{{objectLabel}}', $jsonObject["object_label"], $readmeContents);
@@ -162,19 +120,19 @@ class ModelService{
 		$componentSearchForDecl = 'app.component("{{objectName-lowercase}}-component", {{objectName}}Component);';
 		if( count($formRelationshipColumns) > 0 ){
 			$componentMixinContents = file_get_contents(__DIR__.'/storage/app/MastersMixin.txt');
-			$componentMixinRelationTemplate = file_get_contents(__DIR__.'/storage/app/ComponentMixinLoadRelation.txt');
+			$componentMixinRelationTemplate = file_get_contents(__DIR__.'/storage/app/component/ComponentMixinLoadRelation.txt');
 			$componentMixinLoadRelationContents = "";
 			foreach ($formRelationshipColumns as $formColumn) {
 				$componentMixinLoadRelationContent = $componentMixinRelationTemplate;
-				$componentMixinLoadRelationContent = str_replace('{{relation}}', $formColumn["frm_related_model"], $componentMixinLoadRelationContent);
-				$componentMixinLoadRelationContent = str_replace('{{relation-lowercase}}', strtolower($formColumn["frm_related_model"]), $componentMixinLoadRelationContent);
+				$componentMixinLoadRelationContent = str_replace('{{relation}}', $formColumn["relation"]["related_model"], $componentMixinLoadRelationContent);
+				$componentMixinLoadRelationContent = str_replace('{{relation-lowercase}}', strtolower($formColumn["relation"]["related_model"]), $componentMixinLoadRelationContent);
 
 				// Append this to the overall file
 				$componentMixinLoadRelationContents .= $componentMixinLoadRelationContent;
 				$componentMixinLoadRelationContents .= "\n\n";
 				
 				// Important
-				$componentMixinRelations[str_replace('{{relation}}', $formColumn["frm_related_model"], $mixinSearchForDef)] = $componentMixinLoadRelationContent;
+				$componentMixinRelations[str_replace('{{relation}}', $formColumn["relation"]["related_model"], $mixinSearchForDef)] = $componentMixinLoadRelationContent;
 			}
 			$readmeContents .= 
 				"\n\n|------------------------|\n".

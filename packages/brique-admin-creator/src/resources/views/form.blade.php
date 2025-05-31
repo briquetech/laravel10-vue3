@@ -228,7 +228,7 @@
 										<label :for="'txtlen'+column.name">Length</label>
 									</div>
 								</div>
-								<p class="col-1 d-flex align-items-center fw-bold">- OR -</p>
+								<p class="col-1 d-flex align-items-center fw-bold ">- OR -</p>
 								<div class="col-2">
 									<div class="form-floating">
 										<input type="number" class="form-control" :id="'txtmin_length'+column.name" v-model="column.min_length" min="0">

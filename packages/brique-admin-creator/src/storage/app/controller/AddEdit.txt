@@ -1,0 +1,13 @@
+public function add(){
+    $component = "addedit-{{objectName-lowercase}}-component";
+    return view('common.index', compact("component"));
+}
+
+public function edit($id){
+    $component = "addedit-{{objectName-lowercase}}-component";
+    $objectId = $id;
+    $object = \App\Models\{{objectName}}::find($objectId);
+    if( $object == null )
+        $component = "object-not-found";
+    return view('common.index', compact("component", "objectId"));
+}

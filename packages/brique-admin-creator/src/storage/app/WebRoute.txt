@@ -1,0 +1,11 @@
+// {{objectName}}
+Route::get('/{{objectName-lowercase}}', [App\Http\Controllers\{{objectName}}Controller::class, 'index'])->name('{{objectName-lowercase}}-list');
+Route::post('/{{objectName-lowercase}}/save', [App\Http\Controllers\{{objectName}}Controller::class, 'save'])->name('save-{{objectName-lowercase}}');
+Route::post('/select{{objectName-lowercase}}', [App\Http\Controllers\{{objectName}}Controller::class, 'loadForSelection'])->name('select{{objectName-lowercase}}');
+Route::get('/{{objectName-lowercase}}/edit/{id}', [App\Http\Controllers\{{objectName}}Controller::class, 'edit'])->name('edit-{{objectName-lowercase}}-page');
+Route::post('/{{objectName-lowercase}}/duplicate', [App\Http\Controllers\{{objectName}}Controller::class, 'duplicateRecord'])->name('duplicate-{{objectName-lowercase}}-page');
+Route::get('/{{objectName-lowercase}}/view-file/{id}/{fieldName}/{size}/{randomId}', [App\Http\Controllers\{{objectName}}Controller::class, 'viewFile'])->name('view-{{objectName-lowercase}}-file');
+Route::get('/{{objectName-lowercase}}/export-to-pdf/{id}', [App\Http\Controllers\{{objectName}}Controller::class, 'exportToPDF'])->name('print-{{objectName-lowercase}}');
+Route::post('/{{objectName-lowercase}}/upload-file', [App\Http\Controllers\{{objectName}}Controller::class, 'uploadFile'])->name('upload-{{objectName-lowercase}}-file');
+Route::post('/{{objectName-lowercase}}/clear-file/{id}/{randomId}', [App\Http\Controllers\{{objectName}}Controller::class, 'clearFile'])->name('clear-{{objectName-lowercase}}-file');
+Route::post('/{{objectName-lowercase}}/delete', [App\Http\Controllers\{{objectName}}Controller::class, 'deleteRecord'])->name('delete{{objectName-lowercase}}');

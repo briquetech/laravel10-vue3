@@ -1,0 +1,150 @@
+<template>
+	<div id="{{objectName-lowercase}}-main">
+		<div class="row mb-1" v-if="!isModal">
+			<div class="col-sm-7">
+				<div class="d-flex align-items-center mb-2">
+					<a id="add_{{objectName-lowercase}}_btn" class="btn btn-dark btn-sm me-4 d-flex align-items-center gap-2" :href="docRoot+'/{{objectName-lowercase}}'" role="button"><i class="ph ph-arrow-left "></i>Back to list</a>
+					<h4 class="m-0 text-capitalize">Add {{objectName-lowercase}}</h4>
+				</div>
+			</div>
+		</div>
+		{{formFields}}
+		<div class="row justify-content-center" v-if="!isModal">
+			<div class="col-5">
+				<a class="btn btn-success w-100" @click="save{{objectName}}()">Save</a>
+			</div>
+		</div>
+	</div>
+</template>
+<script>
+import { useVuelidate } from '@vuelidate/core';
+import { required, minValue, alphaNum, numeric, email, requiredIf, minLength,maxLength, decimal, url } from '@vuelidate/validators';
+{{forRichEditorImport}}
+{{forDatePickerImport}}
+
+function initialState(){
+	return {
+		{{vue-addEditFields}}
+		reload: false,
+		closed: false,
+		action: ''
+	};
+}
+function initialStateValidations() {
+	return {
+		{{vue-addEditFieldValidations}}
+	}
+}
+export default {
+	name: "{{objectName}}master",
+	props: ['current_user_id', 'all_permissions','id', 'isModal', '{{objectName-lowercase}}ForAdd', 'reload', 'closed'],
+	setup() {
+		return {
+			v$: useVuelidate()
+		}
+	},
+	data(){
+		return{
+			addEditModal: null,
+			currentUser: siteUserObject,
+			{{fileUploadArray}}
+			imageId: 0,
+			{{masterVariables}}
+			{{forRichEditorData}}
+			{{objectName-lowercase}}FormObj: initialState(),
+		}
+	},
+	validations() {
+		return {
+			{{objectName-lowercase}}FormObj: initialStateValidations()
+		};
+	},
+	{{watchMethodContent}}
+	methods: {
+		canceladdedit(event){
+			{{redirectionForCancelAddEdit}}
+		},
+		formatDate(date) {
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        },
+		async save{{objectName}}(event){
+			var that = this;
+			const result = await that.v$.$validate();
+			if (!result) {
+				that.showToast("Form validation failed. Please check.", "error", "bottom", 2000);
+				console.log(that.v$.$errors);
+				return;
+			}
+			{{forRichEditorSave}}
+			if( !that.{{objectName-lowercase}}FormObj.action || that.{{objectName-lowercase}}FormObj.action == "" )
+				that.{{objectName-lowercase}}FormObj.action = "details";
+			that.{{objectName-lowercase}}FormObj.created_by = that.current_user_id;
+			{{dateFieldFormat}}
+			{{relationMultiselectReverse}}
+			{{textOptionReverse}}
+			{{modalHideOnSave}}
+			that.showLoading("Saving ...");
+			axios.post(that.docRoot+'/{{objectName-lowercase}}/save', { {{objectName-lowercase}}: that.{{objectName-lowercase}}FormObj }).then(async function (response) {
+				that.closeSwal();
+				var status = response.data.status;
+				if( status == 1 ){
+					// Set the ID so that duplicate records will not be created
+					that.{{objectName-lowercase}}FormObj.id = response.data.id;
+					{{templateForSave}}
+				}
+				else{
+					that.showErrors("{{objectLabel}} could not be saved successfully.", response.data.messages, "bottom", 3000);
+				}
+			})
+			.catch(function (error) {
+				console.log(error);
+				that.closeSwal();
+				that.showToast("{{objectLabel}} could not be saved successfully.", "error", "bottom", 3000);
+			});
+		},
+		{{templateForAllUpload}}
+		reloadEverything() {
+			if (this.id !== undefined && !isNaN(this.id)) {
+				this.mode = "edit";
+				{{cancelUploadLoop}}
+				// This is Edit mode - fetch inquiry data
+				var that = this;
+				var URL = this.docRoot + "/api/{{objectName-lowercase}}/get-record/" + this.id;
+				this.showLoading("Loading ...");
+				axios
+					.post(URL, {})
+					.then(function (response) {
+						that.closeSwal();
+						that.{{objectName-lowercase}}FormObj = Object.assign({}, response.data);
+						{{dateFieldForMultiselect}}
+						
+					})
+					.catch(function (error) {
+						console.log(error);
+					});
+			}
+		},
+		{{forRichEditorMethod}}
+		{{forMultiSelect}}
+	},
+	async mounted() {
+		if (this.id > 0){
+			this.reloadEverything();
+		}
+		{{loadMasters}}
+		{{relationMounted}}
+		{{textoptionMultiSelect}}
+		
+		{{forRichEditorMounted}}
+		{{forValueRichEditor}}
+		
+	}
+}
+</script>
+<style>
+	.ql-container{height: 60px !important;}
+</style>

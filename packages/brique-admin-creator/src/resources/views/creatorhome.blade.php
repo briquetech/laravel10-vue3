@@ -559,11 +559,13 @@
 						"enable_activate_deactivate": this.enable_activate_deactivate,
 						"activate_deactivate_column": this.activate_deactivate_column,
 					};
+					console.log(JSON.stringify(object));
+					
 					this.objectToSend = btoa(JSON.stringify(object));
 					this.enableLinks = true;
 					if (this.gen_resource_name.length > 0) {
 						this.gen_form_content = "";
-						const response = await fetch("/api/creator/brique/get-resource-code", {
+						const response = await fetch("/api/creator/brique/generate-resource-code", {
 							method: "POST",
 							headers: {
 								"Content-Type": "application/json",

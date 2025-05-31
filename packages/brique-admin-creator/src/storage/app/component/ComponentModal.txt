@@ -1,0 +1,19 @@
+    <!-- {{modalMode}}-{{objectName-lowercase}} Modal -->
+    <div class="modal fade" ref="{{modalMode}}Modal" id="add{{objectName}}Modal" tabindex="-1" aria-labelledby="add{{objectName}}ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-capitalize" id="add{{objectName}}ModalLabel">{{modalMode}} {{objectName-uppercase}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="cancel{{modalMode}}"></button>
+                </div>
+                <div class="modal-body">
+                    <{{modalMode}}-{{objectName-lowercase}}-component :isModal="true" {{forView}} {{forAdd}}></{{modalMode}}-{{objectName-lowercase}}-component>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-dark btn-sm" data-bs-dismiss="modal" @click="cancel{{modalMode}}()">CLOSE</button>
+					{{modalSaveBtn}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- {{modalMode}}-{{objectName-lowercase}} Modal -->
