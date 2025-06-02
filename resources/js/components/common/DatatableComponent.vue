@@ -1,16 +1,14 @@
 <template>
 	<div class="row mb-1 d-flex align-items-center">
-		<!--  v-if="!dataprops.search || dataprops.search=='simple'" -->
 		<div class="col-sm-9">
 			<div class="d-flex flex-row gap-2">
-				<template v-if="dataprops.search == 'simple'">
-					<label class="col-form-label col-form-label-sm me-3">SEARCH</label>
+				<template v-if="!showAdvanceFilter">
+					<label class="col-form-label col-form-label-sm me-3">Search</label>
 					<input type="text" class="form-control form-control-sm searchBox" v-model="searchString" :disabled="showAdvanceFilter">
 					<button class="btn btn-sm btn-dark px-3" type="button" @click="search(1)" :disabled="showAdvanceFilter"><i class="ph-magnifying-glass"></i></button>
-					<button class="btn btn-sm" type="button" @click="chooseActiveRecords()" :class="activeOnly == 1 ? 'btn-success' : 'btn-dark'">Show<span v-if="activeOnly == 1">ing</span> Active</button>
 					<button class="btn btn-sm btn-outline-dark" type="button" @click="search(-1)" v-if="searchString.length > 0 || activeOnly == 1">Show All</button>
 				</template>
-				<button class="btn btn-sm btn-dark text-uppercase" type="button" v-if="dataprops.search == 'advanced'" @click="showAdvanceFilter = !showAdvanceFilter"><span v-if="!showAdvanceFilter">Show</span><span v-if="showAdvanceFilter">Hide</span> SEARCH Filters</button>
+				<button class="btn btn-sm btn-outline-dark text-uppercase" type="button" v-if="!showAdvanceFilter" @click="showAdvanceFilter = !showAdvanceFilter">SHOW ADVANCE SEARCH Filters</button>
 				<label class="form-label text-success fw-bold p-1 m-0" v-if="activeOnly == 1">Showing Active records</label>
 			</div>
 		</div>
@@ -29,8 +27,7 @@
 		</div>
 	</div>
 	<template v-if="showAdvanceFilter">
-		<!-- <h5 v-if="dataprops.search && dataprops.search == 'advanced'" class="mt-3">FILTERS</h5> -->
-		<div class="card mb-3" v-if="dataprops.search && dataprops.search == 'advanced'">
+		<div class="card mb-3" >
 			<div class="card-body py-2">
 				<div class="row mb-1 d-flex align-items-center">
 					<div class="col-3 fw-semibold py-2">
@@ -42,7 +39,8 @@
 						<select class="form-select" v-model="selectedColumn">
 							<option :value="column" v-for="column of defaultColumns">{{ column.title }}</option>
 							<optgroup label="COLUMNS">
-								<option :value="column" v-for="column of dataprops.search_params?.columns">{{ column.title }}</option>
+								{{ dataprops.search_params }}
+								<option :value="column" v-for="column of dataprops?.search_params?.columns">{{ column.title }}</option>
 							</optgroup>
 						</select>
 					</div>
@@ -60,14 +58,15 @@
 								<option value="0">WHERE TEXT IS NOT</option>
 								<option value="1">MATCHING</option>
 								<option value="22">CONTAINING</option>
+								<option value="23">DOES	NOT CONTAIN</option>
 							</template>
 							<!-- Condition options for Text -->
 							<!-- Condition options for Date -->
 							<template v-if="selectedColumn.type == 'date'">
 								<option value="0">IS NOT ON</option>
 								<option value="1">ON</option>
-								<option value="2">ON OR AFTER</option>
-								<option value="3">ON OR BEFORE</option>
+								<option value="2">ON OR BEFORE</option>
+								<option value="3">ON OR AFTER</option>
 								<option value="5">BETWEEN</option>
 							</template>
 								<!-- Condition options for Date -->
@@ -75,17 +74,11 @@
 							<template v-if="selectedColumn.type == 'number'">
 								<option value="0">DOES NOT EQUALS</option>
 								<option value="1">EQUALS</option>
-								<option value="12">LESS THAN OR EQUALS</option>
-								<option value="13">GREATER THAN OR EQUALS</option>
-								<option value="15">BETWEEN</option>
+								<option value="2">LESS THAN OR EQUALS</option>
+								<option value="3">GREATER THAN OR EQUALS</option>
+								<option value="5">BETWEEN</option>
 							</template>
 							<!-- Condition options for Number -->
-							<!-- Condition options for Boolean -->
-							<template v-if="selectedColumn.type == 'boolean'">
-								<option value="0">TRUE</option>
-								<option value="1">FALSE</option>
-							</template>
-							<!-- Condition options for Boolean -->
 						</select>
 					</div>
 					<div class="col-6">
@@ -127,7 +120,7 @@
 							<div class="row" v-else-if="selectedColumn.type == 'master'">
 								<div class="col-sm-4">
 									<select class="form-select" v-model="searchValue" v-if="this.apiResponseData[selectedColumn.property]">
-										<option :value="enumRow.id" v-for="enumRow of this.apiResponseData[selectedColumn.property]">{{ enumRow.value }}</option>
+										<option :value="enumRow" v-for="enumRow of this.apiResponseData[selectedColumn.property]">{{ enumRow.value }}</option>
 									</select>
 								</div>
 								<div class="col-2">
@@ -148,12 +141,12 @@
 				<template v-if="filters && filters.length > 0">
 					<div class="row mb-1 d-flex">
 						<div class="col-5 fw-semibold py-1 border-bottom text-uppercase">Condition</div>
-						<div class="col-1 fw-semibold py-1 border-bottom text-uppercase">Actions</div>
+						<div class="col-2 fw-semibold py-1 border-bottom text-uppercase text-center">Actions</div>
 					</div>
 					<div class="row mb-1 d-flex" v-for="singleFilter of filters">
 						<div class="col-5 border-bottom">
 							<div class="d-flex flex-row gap-1 py-2">
-								<div>{{ singleFilter.title }}</div>
+								<div class="fw-bold">{{ singleFilter.title }}</div>
 								<template v-if="singleFilter.type == 'date'"> 
 									<span v-if="singleFilter.condition == 0">IS NOT ON</span>
 									<span v-if="singleFilter.condition == 1">IS ON</span>
@@ -161,41 +154,43 @@
 									<span v-if="singleFilter.condition == 3">ON OR AFTER</span>
 									<span v-if="singleFilter.condition == 5">BETWEEN</span>
 									<span>{{ singleFilter.from_value }}</span>
-									<span v-if="singleFilter.condition == 5 || singleFilter.condition == 15">AND</span>
-									<span v-if="singleFilter.condition == 5 || singleFilter.condition == 15">{{ singleFilter.to_value }}</span>
+									<span v-if="singleFilter.condition == 5">AND</span>
+									<span v-if="singleFilter.condition == 5">{{ singleFilter.to_value }}</span>
 								</template>
 								<template v-else-if="singleFilter.type == 'number'"> 
 									<span v-if="singleFilter.condition == 0">NOT EQUALS</span>
 									<span v-if="singleFilter.condition == 1">EQUALS</span>
-									<span v-if="singleFilter.condition == 12">LESS THAN OR EQUALS</span>
-									<span v-if="singleFilter.condition == 13">GREATER THAN OR EQUALS</span>
-									<span v-if="singleFilter.condition == 15">BETWEEN</span>
+									<span v-if="singleFilter.condition == 2">LESS THAN OR EQUALS</span>
+									<span v-if="singleFilter.condition == 3">GREATER THAN OR EQUALS</span>
+									<span v-if="singleFilter.condition == 5">BETWEEN</span>
 									<span>{{ singleFilter.from_value }}</span>
-									<span v-if="singleFilter.condition == 5 || singleFilter.condition == 15">AND</span>
-									<span v-if="singleFilter.condition == 5 || singleFilter.condition == 15">{{ singleFilter.to_value }}</span>
+									<span v-if="singleFilter.condition == 5">AND</span>
+									<span v-if="singleFilter.condition == 5">{{ singleFilter.to_value }}</span>
 								</template>
 								<template v-else-if="singleFilter.type == 'dropdown'">
 									<span v-if="singleFilter.condition == 0">IS NOT</span>
 									<span v-if="singleFilter.condition == 1">IS</span>
 									<template v-if="singleFilter.source_enum && singleFilter.source_enum.length > 0" v-for="sourceEnum of singleFilter.source_enum">
-										<span v-if="sourceEnum.id == singleFilter.search_for_value">{{ sourceEnum.value }}</span>
+										<span v-if="sourceEnum.id == singleFilter.search_for_value" class="fw-bold">{{ sourceEnum.value }}</span>
 									</template>
 								</template>
 								<template v-else-if="singleFilter.type == 'master'">
 									<span v-if="singleFilter.condition == 0">IS NOT</span>
 									<span v-if="singleFilter.condition == 1">IS</span>
-									{{ apiResponseData[singleFilter.property] }}
+									<span class="fw-bold">"{{ singleFilter.search_for_value?.value }}"</span>
 								</template>
 								<template v-else-if="singleFilter.type == 'text'"> 
 									<span v-if="singleFilter.condition == 0">WHERE TEXT IS NOT</span>
 									<span v-if="singleFilter.condition == 1"></span>
 									<span v-if="singleFilter.condition == 22">CONTAINING</span>
-									<span>"{{ singleFilter.search_for_value }}"</span>
+									<span v-if="singleFilter.condition == 23">DOES NOT CONTAIN</span>
+									<span class="fw-bold">"{{ singleFilter.search_for_value }}"</span>
 								</template>
 							</div>
 						</div>
-						<div class="col-1 border-bottom">
+						<div class="col-2 d-flex align-items-center justify-content-center gap-2 border-bottom">
 							<button type="button" class="btn btn-danger btn-sm" @click="removeFilter(singleFilter)">REMOVE</button>
+							<button type="button" class="btn btn-info btn-sm" @click="editFilter(singleFilter)">EDIT</button>
 						</div>
 					</div>
 				</template>
@@ -203,7 +198,7 @@
 			<div class="card-footer">
 				<button type="button" class="btn btn-dark btn-sm me-3" @click="loadAllObjects" :disabled="filters.length == 0">APPLY FILTERS</button>
 				<button type="button" class="btn btn-outline-dark btn-sm me-3" @click="resetFilters()" :disabled="filters.length == 0">RESET FILTERS</button>
-				<!-- <button type="button" class="btn btn-outline-dark btn-sm" @click="showAdvanceFilter = !showAdvanceFilter">Cancel</button> -->
+				<button class="btn btn-sm btn-dark text-uppercase" type="button" @click="showAdvanceFilter = !showAdvanceFilter">Hide SEARCH Filters</button>
 			</div>
 		</div>
 	</template>
@@ -263,10 +258,10 @@
 						:width="column.width"
 						:class="(column.class ? column.class : '') + ' '+ (column.sortable == true ? 'sortable': '') + ' ' + (column.align == 'center' ? 'text-center':(column.align == 'right'?'text-end':''))" @click="sortByColumn(column)">
 						<span>{{column.title}}</span>
-						<i class="pt-1 float-end ph-sort-ascending" v-if="currentColumnSortBy == column.property && currentSortOrder == 'asc'"></i>
-						<i class="pt-1 float-end ph-sort-descending" v-if="currentColumnSortBy == column.property && currentSortOrder == 'desc'"></i>
+						<i class="pt-1 float-end ph-caret-double-up" v-if="currentColumnSortBy == column.property && currentSortOrder == 'asc'"></i>
+						<i class="pt-1 float-end ph-caret-double-down" v-if="currentColumnSortBy == column.property && currentSortOrder == 'desc'"></i>
 					</th>
-					<th class="text-center">ACTIONS</th>
+					<th class="text-center">Actions</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -297,7 +292,16 @@
 						</td>
 						<td class="text-center" style="width: 1px; white-space: nowrap;padding-left: 20px;padding-right: 20px;">
 							<div class="d-flex flex-row gap-2 justify-content-center">
-								<a class="btn btn-sm" :class="action.class" href="#" role="button" v-for="(action, key) of row.rowObject.actions" @click="$emit(action.action, row.rowObject, action.additional_params?.join(','))">{{ action.title }}</a>
+								<div class="btn-group">
+									<button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+										Actions
+									</button>
+									<ul class="dropdown-menu">
+										<li class="list-group-item" v-for="(action, key) of row.rowObject.actions">
+											<a class="btn btn-sm dropdown-item" href="#" role="button" @click="$emit(action.action, row.rowObject, action.additional_params?.join(','))">{{ action.title }}</a>
+										</li>
+									</ul>
+								</div>
 							</div>
 						</td>
 					</tr>
@@ -335,7 +339,7 @@
 <script>
     export default{
         props: [ 'dataprops' ],
-		// emits: ['viewObject', 'editObject', 'toggleObjectStatus'],
+		emits: ['viewObject', 'editObject', 'deleteObjectStatus'],
 		data(){
 			return{
 				allRows: [],
@@ -366,19 +370,17 @@
 		methods: {
 			search(type){
 				this.currentPage = 1;
-				if( type == 1 ){
-					if( this.searchString == "" ){
-						Swal.fire({
-							icon: "error",
-							text: "Search string cannot be empty"
-						});
-					}
-				}
-				else {
-					this.activeOnly = -1;
-					this.searchString = "";
-					this.resetFilters();
-				}
+				let filterToPush = {
+					title: 'SEARCH FOR TEXT',
+					property: '__q',
+					type: 'text',
+					condition: '22',
+					source_enum: null,
+					search_for_value: this.searchString,
+					selectedColumn: { title: 'SEARCH FOR TEXT', property: '__q', type: 'text' },
+				};
+				this.filters = [];
+				this.filters.push(filterToPush);
 				this.loadAllObjects();
 			},
 			chooseActiveRecords() {
@@ -394,46 +396,57 @@
 				let objFound = this.filters.find((singleFilter) => {
 					return (singleFilter.title == _selectedColumn.title); 
 				});
+				console.log(">>>> Obj ", objFound);
 				if (objFound) {
-					this.showToast("You cannot add the same column to the filter again", "error", "bottom", 3000);
-					return
+					objFound.condition = this.searchCondition;
+					objFound.search_for_value = this.searchValue;
+					this.filters.splice(this.filters.indexOf(objFound), 1, objFound);
+				}else{
+					let filterToPush = {
+						title: _selectedColumn.title,
+						property: _selectedColumn.property,
+						type: _selectedColumn.type,
+						condition: this.searchCondition,
+						source_enum: (_selectedColumn.source_enum ? _selectedColumn.source_enum : null),
+						selectedColumn: _selectedColumn,
+					};
+					if (_selectedColumn.type == 'date') {
+						filterToPush.from_value = this.fromDate;
+						filterToPush.to_value = this.toDate;
+					}
+					else if (_selectedColumn.type == 'number') {
+						filterToPush.from_value = this.fromValue;
+						filterToPush.to_value = this.toValue;
+					}
+					else {
+						filterToPush.search_for_value = this.searchValue;
+					}
+					this.filters.push(filterToPush);
+					this.selectedColumn = null;
+					this.searchCondition = null;
+					this.fromDate = null;
+					this.toDate = null;
+					this.fromValue = null;
+					this.toValue = null;
+					console.log(this.apiResponseData);
 				}
-				let filterToPush = {
-					title: _selectedColumn.title,
-					property: _selectedColumn.property,
-					type: _selectedColumn.type,
-					condition: this.searchCondition,
-					source_enum: (_selectedColumn.source_enum ? _selectedColumn.source_enum : null)
-				};
-				if (_selectedColumn.type == 'date') {
-					filterToPush.from_value = this.fromDate;
-					filterToPush.to_value = this.toDate;
-				}
-				else if (_selectedColumn.type == 'number') {
-					filterToPush.from_value = this.fromValue;
-					filterToPush.to_value = this.toValue;
-				}
-				else {
-					filterToPush.search_for_value = this.searchValue;
-				}
-				this.filters.push(filterToPush);
-				this.selectedColumn = null;
-				this.searchCondition = null;
-				this.fromDate = null;
-				this.toDate = null;
-				this.fromValue = null;
-				this.toValue = null;
-				console.log(this.apiResponseData);
 			},
 			removeFilter(singleFilter) {
 				this.filters.splice(this.filters.indexOf(singleFilter), 1);
 				this.showToast("Filter has been removed.", "info", "bottom", 2000);
 				this.loadAllObjects();
 			},
+			editFilter(singleFilter){
+				console.log(singleFilter);
+				this.selectedColumn = singleFilter.selectedColumn;
+				this.searchValue = singleFilter.search_for_value;
+				this.searchCondition = singleFilter.condition;
+			},
 			resetFilters() {
 				this.filters = [];
 				this.selectedColumn = null;
 				this.searchCondition = null;
+				this.searchString = null;
 				this.fromDate = null;
 				this.toDate = null;
 				this.fromValue = null;
@@ -450,16 +463,12 @@
 						postArr = Object.assign({}, this.dataprops.data_to_send);
 					postArr['page'] = this.currentPage;
 					postArr['search'] = this.dataprops.search;
-					// if (this.dataprops.search == 'advanced'){
-						// check for advanced filters
-						if (this.filters.length > 0) {
-							postArr["advfilters"] = this.filters;
-						}
-					// }
-					// else {
-						if (this.searchString !== "")
-							postArr["q"] = this.searchString;
-					// }
+					// check for advanced filters
+					if (this.filters.length > 0) {
+						postArr["advfilters"] = this.filters;
+					}
+					if (this.searchString !== "")
+						postArr["q"] = this.searchString;
 					if( this.activeOnly == 1 )
 						postArr["active"] = "1";
 					if ( this.currentColumnSortBy.length > 0) {
@@ -469,6 +478,7 @@
 					this.showLoading("Loading ...");
 					axios.post(URL, postArr)
 						.then(function (response) {
+							console.log(response);
 							thisElem.totalPages = response.data.meta.last_page;
 							thisElem.totalRecords = response.data.meta.total;
 							thisElem.currentFrom = response.data.meta.from;
@@ -484,16 +494,9 @@
 								let rowValues = [], allColumns = [];
 								thisElem.dataprops.columns.forEach((column) => {
 									// console.log(column);
-									// if (column.hasOwnProperty('column_type') && column.column_type == 'joint'
-									// 	&& column.hasOwnProperty('properties') && column.properties.length > 0) {
-									// 	column.properties.forEach((property) => {
-									// 		allColumns.push(property);
-									// 	})
-									// }
-									// else{
-										allColumns.push(column);
-									// }
+									allColumns.push(column);
 								});
+								// console.log(rowValues);
 								thisElem.dataprops.columns.forEach( (column) => {
 									if (column.type > 0) {
 										if (column.hasOwnProperty('column_type') && column.column_type == 'joint'
@@ -530,7 +533,7 @@
 			},
 			processColumnForDisplay(row, column) {
 				let value = "";
-				if (column["property"].indexOf(".") > 0) {
+				if (column && column["property"] && column["property"].indexOf(".") > 0) {
 					let columnParts = column["property"].split(".");
 					let objectToDig = null;
 					columnParts.forEach((columnPart) => {
@@ -554,7 +557,6 @@
 				}
 				else {
 					value = row[column["property"]];
-					// console.log("&&&&&& print ", row, column["property"], value);
 				}
 				if (column.hasOwnProperty("enum") && column["enum"]) {
 					let enumProp = column["enum"];
@@ -589,9 +591,10 @@
 			// GET APIs
 			async getAPIData(api) {
 				let response = await axios.post(api.api, []);
+				console.log(response);
 				if (response.hasOwnProperty("data")) {
 					this.apiResponseData["" + api.property] = [];
-					for (let record of response.data) {
+					for (let record of response.data.data) {
 						let id = record["" + api.id];
 						let value = record["" + api.value];
 						this.apiResponseData["" + api.property].push({id: id, value: value});
@@ -611,8 +614,7 @@
 			});
 			// Search for apis
 			let apis = [];
-			if (this.dataprops.search == "advanced"
-				&& this.dataprops.hasOwnProperty("search_params")
+			if (this.dataprops.hasOwnProperty("search_params")
 				&& this.dataprops.search_params.hasOwnProperty("columns")
 				&& this.dataprops.search_params.columns.length > 0 ) {
 				for (let column of this.dataprops.search_params.columns) {
@@ -627,9 +629,10 @@
 			}
 			for (let api of apis) {
 				this.getAPIData(api);
+				console.log("API ", api);
 			}
 			if (!this.dataprops.hasOwnProperty("hide_status") || this.dataprops.hide_status == false) {
-				let statusAttribute = { title: 'STATUS', property: 'status', class: "text-center", type: 0, width: '10%' };
+				let statusAttribute = { title: 'Status', property: 'status', class: "text-center", type: 0, width: '10%' };
 				if (this.dataprops.hasOwnProperty("mode") && this.dataprops.mode == "card") {
 					statusAttribute.width = "2";
 				}

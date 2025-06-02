@@ -1,7 +1,7 @@
 <template>
     <div class="container">
 		<div class="py-2 text-center">
-			<h3>Laravel-Vue CRUD generator forms JAy</h3>
+			<h3>Laravel-Vue CRUD generator forms</h3>
 		</div>
 	</div>
 	<div class="container-fluid">

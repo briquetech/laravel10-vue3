@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('role', function (Blueprint $table) {
             $table->id();
 			$table->string('title');
+			$table->boolean('is_admin')->default(false)->comment('1=Admin, 0=User');
 			$table->boolean('status')->default(true);
 			$table->integer("created_by");
             $table->timestamps();

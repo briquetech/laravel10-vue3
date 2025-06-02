@@ -63,36 +63,36 @@ class DatabaseSeeder extends Seeder
 
 		\App\Models\Department::create([ 'title' => 'Other', 'created_by' => 1, ]);
 
-		\App\Models\Role::create([ 'title' => 'Administrator', 'created_by' => 1, ]);
-		\App\Models\Role::create([ 'title' => 'Employee', 'created_by' => 1, ]);
+		\App\Models\Role::create([ 'title' => 'Administrator', 'is_admin'=> 1, 'created_by' => 1, ]);
+		\App\Models\Role::create([ 'title' => 'Employee', 'is_admin'=> 0, 'created_by' => 1, ]);
 
 		// --------------------------------------------------
 		// Masters
-		\App\Models\PlatformObject::create([
-			'title' => 'Role', 'name' => 'Role', 'url' => '/role/',
-			'phicon' => 'eyeglasses',
-			'hierarchical' => false, 'for_admin_only' => true,
-			'category' => 13, 'created_by' => 1,
-		]);
+		// \App\Models\PlatformObject::create([
+		// 	'title' => 'Role', 'name' => 'Role', 'url' => '/role/',
+		// 	'phicon' => 'eyeglasses',
+		// 	'hierarchical' => false, 'for_admin_only' => true,
+		// 	'category' => 13, 'created_by' => 1,
+		// ]);
 		
-		\App\Models\PlatformObject::create([
-			'title' => 'Platform Objects', 'name' => 'PlatformObject', 'url' => '/platformobject/',
-			'phicon' => 'article',
-			'hierarchical' => false, 'for_admin_only' => true,
-			'category' => 13, 'created_by' => 1,
-		]);
-		// --------------------------------------------------
+		// \App\Models\PlatformObject::create([
+		// 	'title' => 'Platform Objects', 'name' => 'PlatformObject', 'url' => '/platformobject/',
+		// 	'phicon' => 'article',
+		// 	'hierarchical' => false, 'for_admin_only' => true,
+		// 	'category' => 13, 'created_by' => 1,
+		// ]);
+		// // --------------------------------------------------
 
-		DB::table('role_object_mapping')->insert([
-			'role_id' => 1,
-			'platform_object_id' => 1,
-			'can_add_edit' => true, 'can_delete' => true
-		]);
-		DB::table('role_object_mapping')->insert([
-			'role_id' => 1,
-			'platform_object_id' => 2,
-			'can_add_edit' => true, 'can_delete' => true
-		]);
+		// DB::table('role_object_mapping')->insert([
+		// 	'role_id' => 1,
+		// 	'platform_object_id' => 1,
+		// 	'can_add_edit' => true, 'can_delete' => true
+		// ]);
+		// DB::table('role_object_mapping')->insert([
+		// 	'role_id' => 1,
+		// 	'platform_object_id' => 2,
+		// 	'can_add_edit' => true, 'can_delete' => true
+		// ]);
 
 	}
 }

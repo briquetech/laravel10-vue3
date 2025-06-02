@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Role extends Model{
     protected $table = "role";
-    protected $fillable = ['title', 'status', 'created_by'];
+    protected $fillable = ['title', 'is_admin', 'status', 'created_by'];
     public $timestamps = true;
 
 	//'pivot', 

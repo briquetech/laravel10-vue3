@@ -13,14 +13,11 @@ return new class extends Migration
 	{
 		Schema::create('platform_object', function (Blueprint $table) {
 			$table->id();
-			$table->string("title")->unique();
 			$table->string("name")->unique();
-			$table->string("url")->unique();
-			$table->string("phicon");
-			$table->boolean("for_admin_only")->default(false);
-			$table->boolean("hierarchical")->default(false);
-			$table->integer("category")->default(1)->comment("1=Actions, 3=Information, 4=others, 11=Masters, 13=other masters");
-			$table->boolean("status")->default(true);
+			$table->integer("role_id");
+			$table->integer("can_export")->comment("1=can export, 0=can't export");
+			$table->integer("can_add_edit_duplicate")->comment("1=can A-E-D, 0=can't can A-E-D");
+			$table->integer("can_delete")->comment("1=can delete, 0=can't delete");
 			$table->integer("created_by");
 			$table->timestamps();
 		});
