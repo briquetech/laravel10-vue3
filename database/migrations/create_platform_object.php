@@ -13,7 +13,10 @@ return new class extends Migration
 	{
 		Schema::create('platform_object', function (Blueprint $table) {
 			$table->id();
+			$table->string("title")->unique();
 			$table->string("name")->unique();
+			$table->string("url")->unique();
+			$table->string("phicon");
 			$table->integer("role_id");
 			$table->integer("can_export")->comment("1=can export, 0=can't export");
 			$table->integer("can_add_edit_duplicate")->comment("1=can A-E-D, 0=can't can A-E-D");

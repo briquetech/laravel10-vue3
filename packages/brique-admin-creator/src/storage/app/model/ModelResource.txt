@@ -23,7 +23,7 @@ class {{objectName}}Resource extends JsonResource
 		{{auth-actions}}
 		return [
 			{{resource-fields}}
-			'current_user_admin' => ( $isUserAdmin ? 1 : 0 ),
+			'current_user_admin' => ( $currentUser->role->is_admin ? 1 : 0 ),
 			'actions' => $actions
 		];
     }

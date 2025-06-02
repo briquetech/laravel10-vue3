@@ -31,23 +31,6 @@
 						</a>
 					</li>
 				</ul>
-				<!-- Information -->
-				<h5 class="sidebar-heading d-flex mt-4 mb-1 fw-bolder"
-					v-if="permittedInfo && permittedInfo.length > 0">
-					<span>FOR INFORMATION</span>
-				</h5>
-				<ul class="navbar-nav nav flex-column" id="nav_masters"
-					v-if="permittedInfo && permittedInfo.length > 0">
-					<li class="nav-item" v-for="permittedObject in permittedInfo">
-						<a class="nav-link p-0 pt-2 d-flex align-items-center"
-							:class="{ 'active': currentRoute === permittedObject.name.toLowerCase() }"
-							:href="permittedObject.url">
-							<i :class="'me-2 ph ph-'+permittedObject.phicon"></i>
-							<span>{{ permittedObject.title }}</span>
-						</a>
-					</li>
-				</ul>
-				<!-- Information -->
 				<!-- My Corner -->
 				<h5 class="sidebar-heading d-flex mt-4 mb-1 fw-bolder"
 					v-if="permittedActions && permittedActions.length > 0">
@@ -65,23 +48,6 @@
 					</li>
 				</ul>
 				<!-- My Corner -->
-				<!-- Others -->
-				<h5 class="sidebar-heading d-flex mt-4 mb-1 fw-bolder"
-					v-if="permittedOthers && permittedOthers.length > 0">
-					<span>OTHERS</span>
-				</h5>
-				<ul class="navbar-nav nav flex-column mb-4" id="nav_masters"
-					v-if="permittedOthers && permittedOthers.length > 0">
-					<li class="nav-item" v-for="permittedObject in permittedOthers">
-						<a class="nav-link p-0 pt-2 d-flex align-items-center"
-							:class="{ 'active': currentRoute === permittedObject.name.toLowerCase() }"
-							:href="permittedObject.url">
-							<i :class="'me-2 ph ph-'+permittedObject.phicon"></i>
-							<span>{{ permittedObject.title }}</span>
-						</a>
-					</li>
-				</ul>
-				<!-- Others -->
 			</div>
 		</div>
 	</nav>
@@ -125,22 +91,8 @@ export default {
 					if (response.data.hasOwnProperty("status") && response.data.status == 1) {
 						that.menuState = 1;
 						if (response.data.hasOwnProperty("permitted_objects") && response.data.permitted_objects.length > 0) {
-							response.data.permitted_objects.map((object) => {
-								switch (object.category) {
-									case 1:
-										// Information
-										that.permittedActions.push(object);
-										break;
-									case 3:
-										// Actions
-										that.permittedInfo.push(object);
-										break;
-									case 4:
-										// Others
-										that.permittedOthers.push(object);
-										break;
-								}
-							});
+							that.permittedActions= JSON.parse(JSON.stringify(response.data.permitted_objects));
+							
 						}
 					}
 				})

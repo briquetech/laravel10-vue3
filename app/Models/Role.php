@@ -15,6 +15,6 @@ class Role extends Model{
 	protected $hidden = ['created_at', 'updated_at' ];
 	
 	public function objects(): BelongsToMany{
-		return $this->belongsToMany(PlatformObject::class, 'role_object_mapping', 'role_id', 'platform_object_id')->withPivot('id', 'view_records', 'can_add_edit', 'can_delete')->orderByPivot('platform_object_id');
+		return $this->belongsToMany(PlatformObject::class, 'role_id')->withPivot('id', 'can_export', 'can_add_edit_duplicate', 'can_delete');
 	}
 }

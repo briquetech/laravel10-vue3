@@ -27,6 +27,12 @@ import UserComponent from "./components/UserComponent";
 // Department
 import DepartmentComponent from "./components/masters/DepartmentComponent";
 
+
+
+
+
+
+
 const app = createApp({})
 
 // Components
@@ -49,6 +55,12 @@ app.component("user-component", UserComponent);
 
 // Department
 app.component("department-component", DepartmentComponent);
+
+
+
+
+
+
 
 // Mixins
 app.mixin(SWAlert);
