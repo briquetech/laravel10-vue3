@@ -79,7 +79,7 @@ class ControllerService{
 			}
 			// Check for relationships
 			if( $column["form"] && $column["form"]["type"] == 'relation'){
-				$relations[] = "'".$column["relation"]["method"]."', ";
+				$relations[] = "'".$column["relation"]["method"]."'";
 				// $convertToJSON .="\nif (isset($".strtolower($objectName)."['relation']) && is_array($".strtolower($objectName)."['relation'])) {
 				// 	\$objectToSave['relation'] = json_encode($".strtolower($objectName)."['relation']);
 				// }\n";
